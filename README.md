@@ -1,5 +1,5 @@
 # DragonQuestLike
-Unityでドラクエ3風RPGを制作するプロジェクト
+Unityでドラクエ1風RPGを制作するプロジェクト
 
 # プロジェクトのタスク
 協力者求む：https://github.com/Tsunehiko511/DragonQuestLike/issues
