@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace Players
 {
+    // ランダムエンカウント
+    // もし、モンスターがいる場所を歩いていると、遭遇する
+
     public class PlayerMove : MonoBehaviour
     {
         [SerializeField] float speed = default;
