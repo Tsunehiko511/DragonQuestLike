@@ -1,6 +1,9 @@
 # DragonQuestLike
 Unityでドラクエ3風RPGを制作するプロジェクト
 
+# プロジェクトのタスク
+協力者求む：https://github.com/Tsunehiko511/DragonQuestLike/issues
+
 # ストーリー
 ・魔王の力で世界が危ない  
 ・勇者が魔王を倒すと決める  
