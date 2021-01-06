@@ -21,3 +21,6 @@ Unityでドラクエ1風RPGを制作するプロジェクト
 
 # バージョン
 ・Unity2019.4.12f
+
+# 使用素材
+・フォント：http://itouhiro.hatenablog.com/entry/20130602/font
