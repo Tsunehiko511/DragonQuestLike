@@ -11,7 +11,7 @@ namespace Players
 
         int encount;
         const int ENCOUNT_TIME = 100;
-        const int ENCOUNT_RATE = 15;
+        const int ENCOUNT_RATE = 20;
         PlayerMove playerMove;
 
         public List<string> EncountMonsterList { get; set; } = default;
@@ -40,8 +40,11 @@ namespace Players
                 int rate = Random.Range(0, 100);
                 if (rate < ENCOUNT_RATE)
                 {
+                    playerMove.canMove = false;
+                    playerMove.isMoving = false;
                     int r = Random.Range(0, EncountMonsterList.Count);
                     Debug.Log(EncountMonsterList[r] + "に出会う");
+                    BattleManager.instance.SetupBattle(EncountMonsterList[r]);
                 }
             }
         }
