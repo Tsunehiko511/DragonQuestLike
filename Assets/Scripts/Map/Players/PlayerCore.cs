@@ -4,9 +4,6 @@ using UnityEngine;
 
 namespace Players
 {
-    // ・Map上にいるPlayer
-    // ・パーティ
-    // ・
     public class PlayerCore : MonoBehaviour
     {
         public Status status;

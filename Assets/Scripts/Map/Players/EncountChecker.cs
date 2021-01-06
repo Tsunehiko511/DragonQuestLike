@@ -10,7 +10,7 @@ namespace Players
         // 移動しているとき、敵に遭遇したら一定確率で戦闘に移す
 
         int encount;
-        const int ENCOUNT_TIME = 100;
+        const int ENCOUNT_TIME = 80;
         const int ENCOUNT_RATE = 20;
         PlayerMove playerMove;
 
