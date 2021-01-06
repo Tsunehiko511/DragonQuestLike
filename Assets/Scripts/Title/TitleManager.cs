@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 public class TitleManager : MonoBehaviour
 {
-    [SerializeField] string nextScene;
+    [SerializeField] string nextScene = default;
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Return))
