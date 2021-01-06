@@ -6,14 +6,9 @@ public class CameraManager : MonoBehaviour
 {
     [SerializeField] Transform target = default;
 
-    void Start()
+    private void LateUpdate()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        transform.position = new Vector3(target.position.x, target.position.y, transform.position.z);
+        Vector3 targetPosition = new Vector3(target.position.x, target.position.y, transform.position.z);
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, 0.2f); 
     }
 }
