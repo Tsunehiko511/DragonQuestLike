@@ -17,7 +17,7 @@ namespace Maps
 
     public class FieldBase : MonoBehaviour
     {
-        [SerializeField] Fieldtype fieldType = default;
+        // [SerializeField] Fieldtype fieldType = default;
         // モンスターを仕込む？
         [SerializeField] List<string> encountMonsterList = default;
         public List<string> EncountMonsterList

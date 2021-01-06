@@ -11,16 +11,23 @@ namespace Players
     public class PlayerMove : MonoBehaviour
     {
         public bool isMoving = default;
+        public bool canMove = default;
 
         [SerializeField] float speed = default;
 
         void Start()
         {
-
+            canMove = true;
         }
         void Update()
         {
             isMoving = false;
+
+            if (canMove == false)
+            {
+                return;
+            }
+
 
             if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
             {
