@@ -30,6 +30,6 @@ namespace Battles
 
     public class Player : BattlerBase
     {
-        
+        // ステータスを表示するものが必要
     }
 }
