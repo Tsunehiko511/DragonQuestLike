@@ -11,7 +11,7 @@ namespace Players
 
         int encount;
         const int ENCOUNT_TIME = 80;
-        const int ENCOUNT_RATE = 20;
+        const int ENCOUNT_RATE = 30;
         PlayerMove playerMove;
 
         public List<string> EncountMonsterList { get; set; } = default;
@@ -34,6 +34,7 @@ namespace Players
         void CheckEncount()
         {
             encount++;
+            Debug.Log(encount);
             if (encount >= ENCOUNT_TIME)
             {
                 encount = 0;

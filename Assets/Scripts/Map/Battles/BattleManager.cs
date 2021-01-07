@@ -7,6 +7,7 @@ using Enemys;
 public class BattleManager : MonoBehaviour
 {
     [SerializeField] GameObject battlePanel = default;
+    [SerializeField] GameObject commandPanel = default;
     [SerializeField] GameObject playerObj = default;
 
     PlayerAttack player;
@@ -17,6 +18,7 @@ public class BattleManager : MonoBehaviour
     {
         instance = this;
         battlePanel.SetActive(false);
+        commandPanel.SetActive(false);
     }
 
     private void Start()
@@ -32,6 +34,7 @@ public class BattleManager : MonoBehaviour
     {
         // バトル画面を出す
         battlePanel.SetActive(true);
+        commandPanel.SetActive(true);
         enemy.status.name = enemyName;
         StartCoroutine(Battle());
     }
