@@ -1,0 +1,95 @@
+@startuml
+title クラス図
+
+利用する -> 利用される
+
+
+namespace Players{
+    class PlayerStatusUI
+    {    
+        Text name;
+        Text level;
+        Text hp;
+        Text mp;
+        Text gold;
+        Text ex;
+        void UpdateUI();
+    }
+
+    class PlayerCore
+    {
+        string name;
+        int level;
+        int hp;
+        int mp;
+        int gold;
+        int ex;
+    }
+
+    PlayerStatusUI -> Players.PlayerCore
+    Players.PlayerCore ...|> Battlers.Battler
+
+    class UserInput
+    {
+        void OpenMenu();
+    }
+}
+
+
+namespace Battles {
+
+    class BattleManager
+    {
+        void Setup();
+        void BattleEnd();
+    }
+    BattleManager ->Battlers.Battler
+}
+namespace Battlers {
+
+    class Battler
+    {
+        int hp;
+        int mp;
+        int speed;
+        int at;
+        
+        void Attack()
+    }
+    interface IDamageable
+    {
+        void OnDamage()
+    }
+
+    IDamageable <|-- Battler
+}
+
+
+namespace GameManagers{
+
+    enum GameMode
+    {
+        Battle,
+        Field
+    }
+
+    class GameManager
+    {
+    }
+}
+
+namespace Enemys{
+
+    Monster ...|> Battlers.Battler
+
+    class Monster
+    {
+        // ステータスを持っている
+    }
+
+    class MonsterDatabase
+    {
+        void Spawn()
+    }
+}
+@enduml
