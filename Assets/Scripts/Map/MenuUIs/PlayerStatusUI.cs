@@ -17,6 +17,10 @@ namespace MenuUIs
         [SerializeField] Text exText = default;
 
         // ステータスの変化があった場合に更新する
+        // ステータスの変化があった場合に更新する
+        // ステータスの変化があった場合に更新する
+        // ステータスの変化があった場合に更新する
+        // ステータスの変化があった場合に更新する
 
         public void UpdateName(string value)
         {
