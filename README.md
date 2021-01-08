@@ -2,7 +2,7 @@
 Unityでドラクエ1風RPGを制作するプロジェクト
 
 # プロジェクトのタスク
-協力者求む（現在イラスト資料を探しています）：https://github.com/Tsunehiko511/DragonQuestLike/issues
+協力者求む：https://github.com/Tsunehiko511/DragonQuestLike/issues
 
 # ストーリー
 ・魔王の力で世界が危ない  
