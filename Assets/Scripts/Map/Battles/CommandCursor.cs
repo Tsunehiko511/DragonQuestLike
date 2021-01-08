@@ -14,9 +14,9 @@ public class CommandCursor : MonoBehaviour
 
     // カーソルの位置を決める
     [SerializeField] Transform[] positionsTransform = default;
-    [SerializeField] int row;   // 行
-    [SerializeField] int column; // 列
-    [SerializeField] float leftPosition; // 横にずらす
+    // [SerializeField] int row = default;   // 行
+    [SerializeField] int column = default; // 列
+    [SerializeField] float leftPosition = default; // 横にずらす
     int currentIndex = 0;
 
 

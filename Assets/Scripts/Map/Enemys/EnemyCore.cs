@@ -1,34 +1,71 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 namespace Enemys
 {
-    public class EnemyCore : MonoBehaviour, IDamageable
+    public enum MonsterType
     {
-        public Status status;
+        Slime,
+        SlimeBeth,
+        Drakey,
+        Ghost
+    }
+
+    [Serializable]
+    public class EnemyCore : IDamageable, IAttackable, IDeadable
+    {
+        public MonsterType monsterType = default;
+        public Sprite sprite = default;
+        public Status status = new Status();
+
+        public int HP
+        {
+            get => status.hp;
+        }
+        public int AT
+        {
+            get => status.at;
+        }
+        public int Speed
+        {
+            get => status.speed;
+        }
+
 
         public void Damage(int damage)
         {
 
         }
 
-        public void Attack(IDamageable damageable)
+        public IEnumerator Attack(IDamageable damageable)
         {
             damageable.Damage(status.at);
+            return null;
+        }
+
+        public EnemyCore Clone()
+        {
+            return (EnemyCore)MemberwiseClone();
+        }
+
+        public bool IsDied()
+        {
+            return status.hp <= 0;
         }
     }
 
+    [Serializable]
     public struct Status
     {
         public string name;
-        int level;
+        public int level;
         public int hp;
-        int mp;
-        int gold;
-        int experiencePoint;
-
+        public int mp;
+        public int gold;
+        public int experiencePoint;
         public int at;
+        public int speed;
     }
 }
 

@@ -4,5 +4,10 @@ using UnityEngine;
 
 public interface IAttackable
 {
-    void Attack(IDamageable damageable);
+    IEnumerator Attack(IDamageable damageable);
+}
+
+public interface IDeadable
+{
+    bool IsDied();
 }

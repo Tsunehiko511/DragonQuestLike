@@ -10,7 +10,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] GameObject commandPanel = default;
     [SerializeField] GameObject playerObj = default;
 
-    PlayerAttack player;
+    PlayerCore player;
     EnemyCore enemy;
 
     public static BattleManager instance;
@@ -27,15 +27,15 @@ public class BattleManager : MonoBehaviour
         {
             playerObj = GameObject.FindGameObjectWithTag("Player");
         }
-        player = playerObj.GetComponent<PlayerAttack>();
+        player = playerObj.GetComponent<PlayerCore>();
     }
 
-    public void SetupBattle(string enemyName)
+    public void SetupBattle(EnemyCore enemy)
     {
         // バトル画面を出す
         battlePanel.SetActive(true);
         commandPanel.SetActive(true);
-        enemy.status.name = enemyName;
+        this.enemy = enemy;
         StartCoroutine(Battle());
     }
 
@@ -44,19 +44,38 @@ public class BattleManager : MonoBehaviour
         while (true)
         {
             yield return WaitPlayerCommand(); // ここでコマンドを受け取る？ Playerにコマンドをセットする
-
             // TODO:素早い順に行動
-            int enemySp = 10;
-            int playerSp = 20;
+            int enemySp = enemy.Speed;
+            int playerSp = player.Speed;
             if (playerSp > enemySp)
             {
-                player.Attack(enemy);
-                enemy.Attack(player);
+                yield return player.Attack(enemy);
+                if (enemy.IsDied())
+                {
+                    Debug.Log("Enemyの死亡");
+                    break;
+                }
+                yield return enemy.Attack(player);
+                if (player.IsDied())
+                {
+                    Debug.Log("Playerの死亡");
+                    break;
+                }
             }
             else
             {
-                enemy.Attack(player);
-                player.Attack(enemy);
+                yield return enemy.Attack(player);
+                if (player.IsDied())
+                {
+                    Debug.Log("Playerの死亡");
+                    break;
+                }
+                yield return player.Attack(enemy);
+                if (enemy.IsDied())
+                {
+                    Debug.Log("Enemyの死亡");
+                    break;
+                }
             }
             // HPが0になったらループを抜ける
         }
@@ -65,7 +84,10 @@ public class BattleManager : MonoBehaviour
 
     IEnumerator WaitPlayerCommand()
     {
+        Debug.Log("コマンド入力待ち");
+        commandPanel.SetActive(true);
         yield return new WaitForSeconds(2f);
+        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
     }
 
 

@@ -16,8 +16,8 @@ public class Cursor : MonoBehaviour
     Text[] cursorObjs;
 
     // カーソルの位置を決める
-    [SerializeField] int row;   // 行
-    [SerializeField] int column; // 列
+    // [SerializeField] int row = default;   // 行
+    [SerializeField] int column = default; // 列
     int currentIndex = 0;
     void Awake()
     {

@@ -22,9 +22,10 @@ namespace Battles
             throw new System.NotImplementedException();
         }
 
-        public void Attack(IDamageable damageable)
+        public IEnumerator Attack(IDamageable damageable)
         {
             damageable.Damage(status.at);
+            return null;
         }
     }
 
