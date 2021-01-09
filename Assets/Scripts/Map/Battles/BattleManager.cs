@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using Players;
 using Enemys;
+using Battles;
 
 public class BattleManager : MonoBehaviour
 {
     [SerializeField] GameObject battlePanel = default;
     [SerializeField] GameObject commandPanel = default;
-    [SerializeField] GameObject playerObj = default;
 
-    PlayerCore player;
-    EnemyCore enemy;
+    // EnemyCore enemy;
+
+    BattlerBase player;
+    BattlerBase enemy;
+    // 敵を表示するもの:追加してやる？
 
     public static BattleManager instance;
     private void Awake()
@@ -23,19 +26,14 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     {
-        if (playerObj == null)
-        {
-            playerObj = GameObject.FindGameObjectWithTag("Player");
-        }
-        player = playerObj.GetComponent<PlayerCore>();
     }
 
     public void SetupBattle(EnemyCore enemy)
     {
         // バトル画面を出す
         battlePanel.SetActive(true);
-        commandPanel.SetActive(true);
-        this.enemy = enemy;
+        this.player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerCore>().Battler;
+        this.enemy = enemy.battler;
         StartCoroutine(Battle());
     }
 
@@ -44,60 +42,74 @@ public class BattleManager : MonoBehaviour
         while (true)
         {
             yield return WaitPlayerCommand(); // ここでコマンドを受け取る？ Playerにコマンドをセットする
-            // TODO:素早い順に行動
-            int enemySp = enemy.Speed;
-            int playerSp = player.Speed;
-            if (playerSp > enemySp)
+
+            BattlerBase first, second;
+            Debug.Log(player);
+            Debug.Log(enemy);
+            Debug.Log(enemy.Speed);
+            Debug.Log(player.Speed);
+
+            if (player.Speed > enemy.Speed)
             {
-                yield return player.Attack(enemy);
-                if (enemy.IsDied())
-                {
-                    Debug.Log("Enemyの死亡");
-                    break;
-                }
-                yield return enemy.Attack(player);
-                if (player.IsDied())
-                {
-                    Debug.Log("Playerの死亡");
-                    break;
-                }
+                first = player;
+                second = enemy;
             }
             else
             {
-                yield return enemy.Attack(player);
-                if (player.IsDied())
-                {
-                    Debug.Log("Playerの死亡");
-                    break;
-                }
-                yield return player.Attack(enemy);
-                if (enemy.IsDied())
-                {
-                    Debug.Log("Enemyの死亡");
-                    break;
-                }
+                first = enemy;
+                second = player;
             }
+
+            yield return first.SelectCommand(second);
+            if (second.IsDied())
+            {
+                Debug.Log(second.Name+"の死亡");
+                break;
+            }
+
+            yield return second.SelectCommand(first);
+            if (first.IsDied())
+            {
+                Debug.Log(first.Name + "の死亡");
+                break;
+            }
+            yield return new WaitForSeconds(2f);
             // HPが0になったらループを抜ける
         }
         EndBattle();
     }
 
+    /*
+    IEnumerator AttackAction(BattlerBase attacker, BatteryStatus defender)
+    {
+        attacker.Attack(defender);
+        yield return new WaitForEndOfFrame(1f);
+
+        if (defender.IsDied())
+        {
+            isDead = true;
+            Debug.Log(second.Name + "の死亡");
+        }
+    }
+    */
+
+
     IEnumerator WaitPlayerCommand()
     {
         Debug.Log("コマンド入力待ち");
         commandPanel.SetActive(true);
-        yield return new WaitForSeconds(2f);
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
+        commandPanel.SetActive(false);
     }
 
 
 
 
-    void EndBattle()
+    public void EndBattle()
     {
         battlePanel.SetActive(false);
         // playerを動けるようにする
-        playerObj.GetComponent<PlayerMove>().canMove = true;
+        GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMove>().canMove = true;
     }
 
     private void Update()

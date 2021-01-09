@@ -21,7 +21,7 @@ namespace Enemys
         public EnemyCore Spawn(MonsterType type)
         {
             EnemyCore enemy = database.enemyList.Find(x => x.monsterType == type);
-            return enemy.Clone();
+            return new EnemyCore(enemy);
         }
     }
 }

@@ -15,45 +15,57 @@ MonoBehaviour:
   enemyList:
   - monsterType: 0
     sprite: {fileID: 0}
-    status:
-      name: "\u30B9\u30E9\u30A4\u30E0"
-      level: 0
-      hp: 100
-      mp: 0
-      gold: 0
-      experiencePoint: 0
-      at: 10
-      speed: 0
+    battler:
+      status:
+        name:
+          value: "\u30B9\u30E9\u30A4\u30E0"
+        level:
+          value: 1
+        hp:
+          value: 10
+        at:
+          value: 2
+        speed:
+          value: 1
   - monsterType: 1
     sprite: {fileID: 0}
-    status:
-      name: 
-      level: 0
-      hp: 0
-      mp: 0
-      gold: 0
-      experiencePoint: 0
-      at: 0
-      speed: 0
+    battler:
+      status:
+        name:
+          value: "\u30B9\u30E9\u30A4\u30E0\u30D9\u30B9"
+        level:
+          value: 1
+        hp:
+          value: 10
+        at:
+          value: 2
+        speed:
+          value: 1
   - monsterType: 2
     sprite: {fileID: 0}
-    status:
-      name: 
-      level: 0
-      hp: 0
-      mp: 0
-      gold: 0
-      experiencePoint: 0
-      at: 0
-      speed: 0
+    battler:
+      status:
+        name:
+          value: "\u30C9\u30E9\u30AD\u30FC"
+        level:
+          value: 1
+        hp:
+          value: 10
+        at:
+          value: 4
+        speed:
+          value: 5
   - monsterType: 3
     sprite: {fileID: 0}
-    status:
-      name: 
-      level: 0
-      hp: 0
-      mp: 0
-      gold: 0
-      experiencePoint: 0
-      at: 0
-      speed: 0
+    battler:
+      status:
+        name:
+          value: "\u30B4\u30FC\u30B9\u30C8"
+        level:
+          value: 1
+        hp:
+          value: 10
+        at:
+          value: 1
+        speed:
+          value: 2

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
-
+using Battles;
 namespace Enemys
 {
     public enum MonsterType
@@ -13,59 +13,19 @@ namespace Enemys
     }
 
     [Serializable]
-    public class EnemyCore : IDamageable, IAttackable, IDeadable
+    public class EnemyCore
     {
         public MonsterType monsterType = default;
         public Sprite sprite = default;
-        public Status status = new Status();
+        
+        public BattlerBase battler;
 
-        public int HP
+        public EnemyCore(EnemyCore enemyCore)
         {
-            get => status.hp;
+            this.battler = new BattlerBase(enemyCore.battler);
+            this.monsterType = enemyCore.monsterType;
+            this.sprite = enemyCore.sprite;
         }
-        public int AT
-        {
-            get => status.at;
-        }
-        public int Speed
-        {
-            get => status.speed;
-        }
-
-
-        public void Damage(int damage)
-        {
-
-        }
-
-        public IEnumerator Attack(IDamageable damageable)
-        {
-            damageable.Damage(status.at);
-            return null;
-        }
-
-        public EnemyCore Clone()
-        {
-            return (EnemyCore)MemberwiseClone();
-        }
-
-        public bool IsDied()
-        {
-            return status.hp <= 0;
-        }
-    }
-
-    [Serializable]
-    public struct Status
-    {
-        public string name;
-        public int level;
-        public int hp;
-        public int mp;
-        public int gold;
-        public int experiencePoint;
-        public int at;
-        public int speed;
     }
 }
 

@@ -11,3 +11,11 @@ public interface IDeadable
 {
     bool IsDied();
 }
+
+public interface IActionable
+{
+    IEnumerator Attack(IDamageable damageable);
+    IEnumerator MagicAction(IDamageable damageable);
+    IEnumerator Escape(IDamageable damageable);
+    IEnumerator UseTool(IDamageable damageable);
+}

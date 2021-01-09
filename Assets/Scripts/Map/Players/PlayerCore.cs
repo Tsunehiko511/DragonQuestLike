@@ -9,72 +9,41 @@ using UniRx;
 
 namespace Players
 {
-    public class PlayerCore : MonoBehaviour, IDamageable, IAttackable, IDeadable
+    public class PlayerCore : MonoBehaviour
     {
-        new StringReactiveProperty name = new StringReactiveProperty("ゆうしゃ");
-        IntReactiveProperty level = new IntReactiveProperty(1);
-        IntReactiveProperty hp = new IntReactiveProperty(1);
+        
+        [SerializeField] Battles.BattlerBase battler = default;
         IntReactiveProperty mp = new IntReactiveProperty(1);
         IntReactiveProperty gold = new IntReactiveProperty(1);
         IntReactiveProperty experiencePoint = new IntReactiveProperty(1);
-        IntReactiveProperty at = new IntReactiveProperty(1);
 
-        public delegate IEnumerator CurrentCommandDelegate();
-        public CurrentCommandDelegate CurrentCommand;
-
-        public int AT
+        public Battles.BattlerBase Battler
         {
-            get => at.Value;
-        }
-        public int HP
-        {
-            get { return hp.Value; }
-            set
-            {
-                hp.Value = value;
-                if (hp.Value < 0) hp.Value = 0;
-            }
+            get => battler;
         }
 
-        public int Speed { get; set; } = 10;
-
-
-        public void Damage(int damage)
+        void Awake()
         {
-            HP -= damage;
         }
 
-        public IEnumerator Attack(IDamageable damageable)
-        {
-            damageable.Damage(AT);
-            return null;
-        }
 
+
+        public void Attack()
+        {
+            battler.SetCommand(Battles.Commands.Attack);
+        }
         public void MagicAction()
         {
+            battler.SetCommand(Battles.Commands.Magic);
         }
         public void Escape()
         {
+            battler.SetCommand(Battles.Commands.Escape);
         }
         public void UseTool()
         {
+            battler.SetCommand(Battles.Commands.UseTool);
         }
-
-        public bool IsDied()
-        {
-            return HP <= 0;
-        }
-    }
-
-    public struct Status
-    {
-        string name;
-        int level;
-        public int hp;
-        int mp;
-        int gold;
-        int experiencePoint;
-        public int at;
     }
 }
 
