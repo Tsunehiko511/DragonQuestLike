@@ -19,8 +19,8 @@ namespace Maps
     {
         // [SerializeField] Fieldtype fieldType = default;
         // モンスターを仕込む？
-        [SerializeField] List<string> encountMonsterList = default;
-        public List<string> EncountMonsterList
+        [SerializeField] List<Enemys.MonsterType> encountMonsterList = default;
+        public List<Enemys.MonsterType> EncountMonsterList
         {
             get => encountMonsterList;
             set => encountMonsterList = value;

@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using Players;
 using Enemys;
+using Battles;
 
 public class BattleManager : MonoBehaviour
 {
     [SerializeField] GameObject battlePanel = default;
     [SerializeField] GameObject commandPanel = default;
-    [SerializeField] GameObject playerObj = default;
 
-    PlayerAttack player;
-    EnemyCore enemy;
+    // EnemyCore enemy;
+
+    BattlerBase player;
+    BattlerBase enemy;
+    // 敵を表示するもの:追加してやる？
 
     public static BattleManager instance;
     private void Awake()
@@ -23,19 +26,14 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     {
-        if (playerObj == null)
-        {
-            playerObj = GameObject.FindGameObjectWithTag("Player");
-        }
-        player = playerObj.GetComponent<PlayerAttack>();
     }
 
-    public void SetupBattle(string enemyName)
+    public void SetupBattle(EnemyCore enemy)
     {
         // バトル画面を出す
         battlePanel.SetActive(true);
-        commandPanel.SetActive(true);
-        enemy.status.name = enemyName;
+        this.player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerCore>().Battler;
+        this.enemy = enemy.battler;
         StartCoroutine(Battle());
     }
 
@@ -45,37 +43,73 @@ public class BattleManager : MonoBehaviour
         {
             yield return WaitPlayerCommand(); // ここでコマンドを受け取る？ Playerにコマンドをセットする
 
-            // TODO:素早い順に行動
-            int enemySp = 10;
-            int playerSp = 20;
-            if (playerSp > enemySp)
+            BattlerBase first, second;
+            Debug.Log(player);
+            Debug.Log(enemy);
+            Debug.Log(enemy.Speed);
+            Debug.Log(player.Speed);
+
+            if (player.Speed > enemy.Speed)
             {
-                player.Attack(enemy);
-                enemy.Attack(player);
+                first = player;
+                second = enemy;
             }
             else
             {
-                enemy.Attack(player);
-                player.Attack(enemy);
+                first = enemy;
+                second = player;
             }
+
+            yield return first.SelectCommand(second);
+            if (second.IsDied())
+            {
+                Debug.Log(second.Name+"の死亡");
+                break;
+            }
+
+            yield return second.SelectCommand(first);
+            if (first.IsDied())
+            {
+                Debug.Log(first.Name + "の死亡");
+                break;
+            }
+            yield return new WaitForSeconds(2f);
             // HPが0になったらループを抜ける
         }
         EndBattle();
     }
 
+    /*
+    IEnumerator AttackAction(BattlerBase attacker, BatteryStatus defender)
+    {
+        attacker.Attack(defender);
+        yield return new WaitForEndOfFrame(1f);
+
+        if (defender.IsDied())
+        {
+            isDead = true;
+            Debug.Log(second.Name + "の死亡");
+        }
+    }
+    */
+
+
     IEnumerator WaitPlayerCommand()
     {
-        yield return new WaitForSeconds(2f);
+        Debug.Log("コマンド入力待ち");
+        commandPanel.SetActive(true);
+        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
+        commandPanel.SetActive(false);
     }
 
 
 
 
-    void EndBattle()
+    public void EndBattle()
     {
         battlePanel.SetActive(false);
         // playerを動けるようにする
-        playerObj.GetComponent<PlayerMove>().canMove = true;
+        GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMove>().canMove = true;
     }
 
     private void Update()

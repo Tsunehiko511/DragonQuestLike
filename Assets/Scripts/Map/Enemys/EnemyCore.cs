@@ -1,34 +1,31 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
+using System.Collections;
 using UnityEngine;
-
+using Battles;
 namespace Enemys
 {
-    public class EnemyCore : MonoBehaviour, IDamageable
+    public enum MonsterType
     {
-        public Status status;
-
-        public void Damage(int damage)
-        {
-
-        }
-
-        public void Attack(IDamageable damageable)
-        {
-            damageable.Damage(status.at);
-        }
+        Slime,
+        SlimeBeth,
+        Drakey,
+        Ghost
     }
 
-    public struct Status
+    [Serializable]
+    public class EnemyCore
     {
-        public string name;
-        int level;
-        public int hp;
-        int mp;
-        int gold;
-        int experiencePoint;
+        public MonsterType monsterType = default;
+        public Sprite sprite = default;
+        
+        public BattlerBase battler;
 
-        public int at;
+        public EnemyCore(EnemyCore enemyCore)
+        {
+            this.battler = new BattlerBase(enemyCore.battler);
+            this.monsterType = enemyCore.monsterType;
+            this.sprite = enemyCore.sprite;
+        }
     }
 }
 

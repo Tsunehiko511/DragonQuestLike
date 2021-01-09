@@ -6,11 +6,12 @@ public class TitleManager : MonoBehaviour
 {
     [SerializeField] string nextScene = default;
 
-    void Update()
+    public void OnStartButton()
     {
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            SceneManager.LoadScene(nextScene);
-        }
+        SceneManager.LoadScene(nextScene);
+    }
+    public void OnContinueButton()
+    {
+        SceneManager.LoadScene(nextScene);
     }
 }

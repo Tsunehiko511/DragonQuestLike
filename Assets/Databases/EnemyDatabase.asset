@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f1da79b21a344b74bdfc89429b67ed2, type: 3}
+  m_Name: EnemyDatabase
+  m_EditorClassIdentifier: 
+  enemyList:
+  - monsterType: 0
+    sprite: {fileID: 0}
+    battler:
+      status:
+        name:
+          value: "\u30B9\u30E9\u30A4\u30E0"
+        level:
+          value: 1
+        hp:
+          value: 10
+        at:
+          value: 2
+        speed:
+          value: 1
+  - monsterType: 1
+    sprite: {fileID: 0}
+    battler:
+      status:
+        name:
+          value: "\u30B9\u30E9\u30A4\u30E0\u30D9\u30B9"
+        level:
+          value: 1
+        hp:
+          value: 10
+        at:
+          value: 2
+        speed:
+          value: 1
+  - monsterType: 2
+    sprite: {fileID: 0}
+    battler:
+      status:
+        name:
+          value: "\u30C9\u30E9\u30AD\u30FC"
+        level:
+          value: 1
+        hp:
+          value: 10
+        at:
+          value: 4
+        speed:
+          value: 5
+  - monsterType: 3
+    sprite: {fileID: 0}
+    battler:
+      status:
+        name:
+          value: "\u30B4\u30FC\u30B9\u30C8"
+        level:
+          value: 1
+        hp:
+          value: 10
+        at:
+          value: 1
+        speed:
+          value: 2

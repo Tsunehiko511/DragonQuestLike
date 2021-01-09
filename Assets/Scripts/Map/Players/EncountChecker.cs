@@ -14,7 +14,7 @@ namespace Players
         const int ENCOUNT_RATE = 30;
         PlayerMove playerMove;
 
-        public List<string> EncountMonsterList { get; set; } = default;
+        public List<Enemys.MonsterType> EncountMonsterList { get; set; } = default;
 
 
         void Start()
@@ -34,9 +34,9 @@ namespace Players
         void CheckEncount()
         {
             encount++;
-            Debug.Log(encount);
             if (encount >= ENCOUNT_TIME)
             {
+                Debug.Log(encount+"出会うかも");
                 encount = 0;
                 int rate = Random.Range(0, 100);
                 if (rate < ENCOUNT_RATE)
@@ -44,8 +44,10 @@ namespace Players
                     playerMove.canMove = false;
                     playerMove.isMoving = false;
                     int r = Random.Range(0, EncountMonsterList.Count);
-                    Debug.Log(EncountMonsterList[r] + "に出会う");
-                    BattleManager.instance.SetupBattle(EncountMonsterList[r]);
+                    Enemys.MonsterType monsterType = EncountMonsterList[r];
+                    Debug.Log(monsterType + "に出会う");
+                    // モンスター生成
+                    BattleManager.instance.SetupBattle(Enemys.EnemyDatabase.instance.Spawn(monsterType));
                 }
             }
         }
