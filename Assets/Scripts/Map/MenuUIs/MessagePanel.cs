@@ -173,7 +173,6 @@ public class MessagePanel : MonoBehaviour
         AddMessage(string.Format("{0}　をたおした！", enemyName));
         AddMessage(string.Format("けいけんち　{0}ポイントかくとく", point));
         AddMessage(string.Format("{0}ゴールドを　てにいれた！", gold));
-        AddMessage("2ゴールドを　てにいれた！");
         yield return ShowMessage();
     }
 }
