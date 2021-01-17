@@ -75,9 +75,6 @@ public class BattleManager : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
             yield return second.SelectCommand(first);
             yield return messagePanel.BattleMessageAttack(second.Name, first.Name, second.IsPlayer);
-            messagePanel.AddMessage(MessagePanel.WAIT);
-            yield return messagePanel.ShowMessage();
-
             if (first.IsDied())
             {
                 Debug.Log(first.Name + "の死亡");
