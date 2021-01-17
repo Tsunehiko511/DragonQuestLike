@@ -4,14 +4,16 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 
-public class MessagePanel : MonoBehaviour
+public class TestMessageText : MonoBehaviour
 {
     [SerializeField] Text[] messageTexts = default;
-    public const string WAIT = "WAIT";
-    public List<string> messages = new List<string>()
+    [SerializeField] GameObject clickIcon = default;
+    const string WAIT = "WAIT";
+    List<string> messages = new List<string>()
     {
-        "スライムベスが あらわれた！",
-        "コマンド？",
+        "11111111",
+        "22222222",
+        "33333333",
         WAIT,
         "44444444",
         "55555555",
@@ -22,31 +24,32 @@ public class MessagePanel : MonoBehaviour
     List<string> messageList = new List<string>();
 
     int correntLine = 0;
+    bool isShowing;
 
-    public void Init()
+    private void Start()
     {
-        correntLine = 0;
-        messages.Clear();
-        messageList.Clear();
-        foreach (Text text in messageTexts)
+        ShowFirstMessage();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && isShowing == false)
         {
-            text.text = "";
+            StartCoroutine(ChangeMessage());
         }
     }
 
-    public void AddMessage(string message)
+    public void ShowFirstMessage()
     {
-        messages.Add(message);
-    }
-
-    public IEnumerator ShowMessage()
-    {
-        yield return ChangeMessage();
+        StartCoroutine(ChangeMessage());
     }
 
     IEnumerator ChangeMessage()
     {
-        while (IsLoop())
+        clickIcon.SetActive(false);
+        isShowing = true;
+        // TAPが出るまで繰り返す
+        while (messages[correntLine] != WAIT)
         {
             // もし3文字以上なら
             if (messageList.Count == 3)
@@ -60,23 +63,14 @@ public class MessagePanel : MonoBehaviour
             yield return new WaitForSeconds(0.15f);
             yield return AddLine(messages[correntLine]);
             correntLine++;
+            correntLine %= messages.Count;
         }
+        correntLine++;
+        correntLine %= messages.Count;
+        isShowing = false;
+        clickIcon.SetActive(true);
     }
 
-    bool IsLoop()
-    {
-        if (correntLine >= messages.Count)
-        {
-            return false;
-        }
-
-        if (messages[correntLine] == WAIT)
-        {
-            correntLine++;
-            return false;
-        }
-        return true;
-    }
 
     IEnumerator ShowCharacterFor(Text showText, string message)
     {
@@ -93,7 +87,7 @@ public class MessagePanel : MonoBehaviour
     void RemoveFirstLine()
     {
         Text highestText = messageTexts[0];
-        foreach (Text text in messageTexts)
+        foreach(Text text in messageTexts)
         {
             if (highestText.transform.position.y < text.transform.position.y)
             {
@@ -125,7 +119,7 @@ public class MessagePanel : MonoBehaviour
     {
         int length = messageTexts.Length;
         float[] positions = new float[length];
-        for (int i = 0; i < length; i++)
+        for (int i=0; i< length; i++)
         {
             positions[i] = messageTexts[i].transform.position.y;
         }
@@ -139,41 +133,5 @@ public class MessagePanel : MonoBehaviour
             }
             messageTexts[i].transform.DOMoveY(positions[moveIndex], 0.1f).SetEase(Ease.Linear);
         }
-    }
-
-    public IEnumerator BattleMessageAttack(string attacker, string defender, bool isPlayer)
-    {
-        if (isPlayer)
-        {
-            BattleMessagePlayerAttack(attacker, defender);
-        }
-        else
-        {
-            BattleMessageEnemyAttack(defender, attacker);
-        }
-        yield return ShowMessage();
-    }
-
-    void BattleMessagePlayerAttack(string playerName, string enemyName)
-    {
-        AddMessage(playerName + "の　こうげき！");
-        AddMessage(enemyName + "に　3ポイントの");
-        AddMessage("ダメージを　あたえた！");
-    }
-
-    void BattleMessageEnemyAttack(string playerName, string enemyName)
-    {
-        AddMessage("　"+enemyName + "の　こうげき！");
-        AddMessage("　" + playerName + "は　2ポイントの");
-        AddMessage("　" + "ダメージを　うけた！");
-    }
-
-    public IEnumerator BattleMessageEnemyDie(string enemyName, int point, int gold)
-    {
-        AddMessage(string.Format("{0}　をたおした！", enemyName));
-        AddMessage(string.Format("けいけんち　{0}ポイントかくとく", point));
-        AddMessage(string.Format("{0}ゴールドを　てにいれた！", gold));
-        AddMessage("2ゴールドを　てにいれた！");
-        yield return ShowMessage();
     }
 }
