@@ -16,6 +16,7 @@ MonoBehaviour:
   - monsterType: 0
     sprite: {fileID: 0}
     battler:
+      isPlayer: 0
       status:
         name:
           value: "\u30B9\u30E9\u30A4\u30E0"
@@ -30,13 +31,14 @@ MonoBehaviour:
   - monsterType: 1
     sprite: {fileID: 0}
     battler:
+      isPlayer: 0
       status:
         name:
           value: "\u30B9\u30E9\u30A4\u30E0\u30D9\u30B9"
         level:
           value: 1
         hp:
-          value: 10
+          value: 6
         at:
           value: 2
         speed:
@@ -44,6 +46,7 @@ MonoBehaviour:
   - monsterType: 2
     sprite: {fileID: 0}
     battler:
+      isPlayer: 0
       status:
         name:
           value: "\u30C9\u30E9\u30AD\u30FC"
@@ -58,6 +61,7 @@ MonoBehaviour:
   - monsterType: 3
     sprite: {fileID: 0}
     battler:
+      isPlayer: 0
       status:
         name:
           value: "\u30B4\u30FC\u30B9\u30C8"
