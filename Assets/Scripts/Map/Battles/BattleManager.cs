@@ -9,7 +9,7 @@ public class BattleManager : MonoBehaviour
 {
     [SerializeField] GameObject battlePanel = default;
     [SerializeField] GameObject commandPanel = default;
-
+    [SerializeField] MessagePanel messagePanel = default;
     // EnemyCore enemy;
 
     BattlerBase player;
@@ -34,20 +34,22 @@ public class BattleManager : MonoBehaviour
         battlePanel.SetActive(true);
         this.player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerCore>().Battler;
         this.enemy = enemy.battler;
+        messagePanel.Init();
         StartCoroutine(Battle());
     }
 
     IEnumerator Battle()
     {
+        messagePanel.AddMessage(this.enemy.Name + "が　あらわれた！");
+        // コマンド表示
         while (true)
         {
+            messagePanel.AddMessage("コマンド？");
+            messagePanel.AddMessage(MessagePanel.WAIT);
+            yield return messagePanel.ShowMessage();
             yield return WaitPlayerCommand(); // ここでコマンドを受け取る？ Playerにコマンドをセットする
 
             BattlerBase first, second;
-            Debug.Log(player);
-            Debug.Log(enemy);
-            Debug.Log(enemy.Speed);
-            Debug.Log(player.Speed);
 
             if (player.Speed > enemy.Speed)
             {
@@ -61,42 +63,33 @@ public class BattleManager : MonoBehaviour
             }
 
             yield return first.SelectCommand(second);
+            yield return messagePanel.BattleMessageAttack(first.Name, second.Name, first.IsPlayer);
             if (second.IsDied())
             {
-                Debug.Log(second.Name+"の死亡");
+                yield return new WaitForSeconds(0.2f);
+                yield return messagePanel.BattleMessageEnemyDie(enemyName:enemy.Name, point:1, gold:2);
+                yield return new WaitForSeconds(2f);
                 break;
             }
 
+            yield return new WaitForSeconds(0.5f);
             yield return second.SelectCommand(first);
+            yield return messagePanel.BattleMessageAttack(second.Name, first.Name, second.IsPlayer);
+            messagePanel.AddMessage(MessagePanel.WAIT);
+            yield return messagePanel.ShowMessage();
+
             if (first.IsDied())
             {
                 Debug.Log(first.Name + "の死亡");
                 break;
             }
-            yield return new WaitForSeconds(2f);
-            // HPが0になったらループを抜ける
         }
         EndBattle();
     }
 
-    /*
-    IEnumerator AttackAction(BattlerBase attacker, BatteryStatus defender)
-    {
-        attacker.Attack(defender);
-        yield return new WaitForEndOfFrame(1f);
-
-        if (defender.IsDied())
-        {
-            isDead = true;
-            Debug.Log(second.Name + "の死亡");
-        }
-    }
-    */
-
 
     IEnumerator WaitPlayerCommand()
     {
-        Debug.Log("コマンド入力待ち");
         commandPanel.SetActive(true);
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
         commandPanel.SetActive(false);

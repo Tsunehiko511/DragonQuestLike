@@ -26,13 +26,16 @@ namespace Battles
             public IntReactiveProperty speed;
         }
 
-        public BattlerBase(BattlerBase battlerBase)
+        public BattlerBase(BattlerBase battlerBase, bool isPlayer = false)
         {
             status.name = new StringReactiveProperty(battlerBase.Name);
             status.hp = new IntReactiveProperty(battlerBase.HP);
             status.at = new IntReactiveProperty(battlerBase.AT);
             status.speed = new IntReactiveProperty(battlerBase.Speed);
+            this.isPlayer = isPlayer;
         }
+
+        [SerializeField] bool isPlayer;
 
         public delegate IEnumerator Command(IDamageable damageable);
         public Command selectCommand = default;
@@ -47,6 +50,12 @@ namespace Battles
                 return selectCommand;
             }
         }
+
+        public bool IsPlayer
+        {
+            get => isPlayer;
+        }
+
 
         public string Name
         {
@@ -86,14 +95,15 @@ namespace Battles
         {
             Debug.Log(Name + "は" + damage + "をうけた");
             HP -= damage;
-            yield return new WaitForSeconds(0.3f);
+            return null;
+            // yield return new WaitForSeconds(0.3f);
         }
 
         public IEnumerator Attack(IDamageable damageable)
         {
             Debug.Log(Name + "のこうげき");
             yield return damageable.Damage(status.at.Value);
-            yield return new WaitForSeconds(0.3f);
+            // yield return new WaitForSeconds(0.3f);
         }
 
         public bool IsDied()

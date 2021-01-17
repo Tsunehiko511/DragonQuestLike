@@ -1,116 +1,179 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class MessagePanel : MonoBehaviour
 {
-    [TextArea]
-    public string[] sentences; // 文章を格納する
-    [SerializeField] Text messageText = default;   // uiTextへの参照
-    // [SerializeField] TextAsset messageText = default;   // uiTextへの参照
-
-    [SerializeField]
-    [Range(0.001f, 0.3f)]
-    float intervalForCharDisplay = 0.05f;   // 1文字の表示にかける時間
-
-    private int currentSentenceNum = 0; //現在表示している文章番号
-    private string currentSentence = string.Empty;  // 現在の文字列
-    private float timeUntilDisplay = 0;     // 表示にかかる時間
-    private float timeBeganDisplay = 1;         // 文字列の表示を開始した時間
-    private int lastUpdateCharCount = -1;       // 表示中の文字数
-
-    bool OnNext = false;
-
-    string message = string.Empty;
-
-    void Start()
+    [SerializeField] Text[] messageTexts = default;
+    public const string WAIT = "WAIT";
+    public List<string> messages = new List<string>()
     {
-        SetNextSentence();
+        "スライムベスが あらわれた！",
+        "コマンド？",
+        WAIT,
+        "44444444",
+        "55555555",
+        "66666666",
+        WAIT,
+    };
+
+    List<string> messageList = new List<string>();
+
+    int correntLine = 0;
+
+    public void Init()
+    {
+        correntLine = 0;
+        messages.Clear();
+        messageList.Clear();
+        foreach (Text text in messageTexts)
+        {
+            text.text = "";
+        }
     }
 
-
-    public void Update()
+    public void AddMessage(string message)
     {
-        OnNext = false;
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            // message = messageText.text;
-            OnNext = true;
+        messages.Add(message);
+    }
 
-        }
-        // 文章の表示完了 / 未完了
-        if (IsDisplayComplete())
+    public IEnumerator ShowMessage()
+    {
+        yield return ChangeMessage();
+    }
+
+    IEnumerator ChangeMessage()
+    {
+        while (IsLoop())
         {
-            //最後の文章ではない & ボタンが押された
-            if (currentSentenceNum < sentences.Length && OnNext)
+            // もし3文字以上なら
+            if (messageList.Count == 3)
             {
-                SetNextSentence();
+                messageList.RemoveAt(0);
+                RemoveFirstLine();
+                MoveLines();
             }
-            else if (currentSentenceNum >= sentences.Length)
+            messageList.Add(messages[correntLine]);
+
+            yield return new WaitForSeconds(0.15f);
+            yield return AddLine(messages[correntLine]);
+            correntLine++;
+        }
+    }
+
+    bool IsLoop()
+    {
+        if (correntLine >= messages.Count)
+        {
+            return false;
+        }
+
+        if (messages[correntLine] == WAIT)
+        {
+            correntLine++;
+            return false;
+        }
+        return true;
+    }
+
+    IEnumerator ShowCharacterFor(Text showText, string message)
+    {
+        int count = 0;
+        while (count < message.Length)
+        {
+            showText.text += message[count]; ;
+            yield return new WaitForSeconds(0.04f);
+            count++;
+        }
+        showText.text += "\n";
+    }
+
+    void RemoveFirstLine()
+    {
+        Text highestText = messageTexts[0];
+        foreach (Text text in messageTexts)
+        {
+            if (highestText.transform.position.y < text.transform.position.y)
             {
-                currentSentenceNum = 0;
-                if (CountOf(messageText.text, "\n") == 3)
-                {
-                    RemoveTextOneLine();
-                }
+                highestText = text;
             }
+        }
+        highestText.text = "";
+    }
+
+    IEnumerator AddLine(string message)
+    {
+        Text lowestText = messageTexts[0];
+        foreach (Text text in messageTexts)
+        {
+            if (text.text == "")
+            {
+                lowestText = text;
+                break;
+            }
+            if (lowestText.transform.position.y > text.transform.position.y)
+            {
+                lowestText = text;
+            }
+        }
+        yield return ShowCharacterFor(lowestText, message);
+    }
+    // 上に移動させる: Text自体をかえる？
+    void MoveLines()
+    {
+        int length = messageTexts.Length;
+        float[] positions = new float[length];
+        for (int i = 0; i < length; i++)
+        {
+            positions[i] = messageTexts[i].transform.position.y;
+        }
+
+        for (int i = 0; i < length; i++)
+        {
+            int moveIndex = i - 1;
+            if (moveIndex < 0)
+            {
+                moveIndex = length - 1;
+            }
+            messageTexts[i].transform.DOMoveY(positions[moveIndex], 0.1f).SetEase(Ease.Linear);
+        }
+    }
+
+    public IEnumerator BattleMessageAttack(string attacker, string defender, bool isPlayer)
+    {
+        if (isPlayer)
+        {
+            BattleMessagePlayerAttack(attacker, defender);
         }
         else
         {
-            if (OnNext)
-            {
-                timeUntilDisplay = 0;
-            }
+            BattleMessageEnemyAttack(defender, attacker);
         }
-
-        //表示される文字数を計算
-        int displayCharCount = (int)(Mathf.Clamp01((Time.time - timeBeganDisplay) / timeUntilDisplay) * currentSentence.Length);
-        //表示される文字数が表示している文字数と違う
-        if (displayCharCount != lastUpdateCharCount)
-        {
-            messageText.text = currentSentence.Substring(0, displayCharCount);
-            //表示している文字数の更新
-            lastUpdateCharCount = displayCharCount;
-        }
+        yield return ShowMessage();
     }
 
-    void RemoveTextOneLine()
+    void BattleMessagePlayerAttack(string playerName, string enemyName)
     {
-        string tmpText = messageText.text;
-        int p = tmpText.IndexOf("\n");
-        if (p < 0) p = tmpText.Length;
-        string outStr = tmpText.Substring(p, tmpText.Length - p);
-        messageText.text = outStr;
+        AddMessage(playerName + "の　こうげき！");
+        AddMessage(enemyName + "に　3ポイントの");
+        AddMessage("ダメージを　あたえた！");
     }
 
-    public int CountOf(string target, params string[] strArray)
+    void BattleMessageEnemyAttack(string playerName, string enemyName)
     {
-        int count = 0;
-
-        foreach (string str in strArray)
-        {
-            int index = target.IndexOf(str, 0);
-            while (index != -1)
-            {
-                count++;
-                index = target.IndexOf(str, index + str.Length);
-            }
-        }
-
-        return count;
+        AddMessage("　"+enemyName + "の　こうげき！");
+        AddMessage("　" + playerName + "は　2ポイントの");
+        AddMessage("　" + "ダメージを　うけた！");
     }
 
-    // 次の文章をセットする
-    void SetNextSentence()
+    public IEnumerator BattleMessageEnemyDie(string enemyName, int point, int gold)
     {
-        currentSentence = sentences[currentSentenceNum];
-        timeUntilDisplay = currentSentence.Length * intervalForCharDisplay;
-        timeBeganDisplay = Time.time;
-        currentSentenceNum++;
-        lastUpdateCharCount = 0;
-    }
-
-    bool IsDisplayComplete()
-    {
-        return Time.time > timeBeganDisplay + timeUntilDisplay; //※2
+        AddMessage(string.Format("{0}　をたおした！", enemyName));
+        AddMessage(string.Format("けいけんち　{0}ポイントかくとく", point));
+        AddMessage(string.Format("{0}ゴールドを　てにいれた！", gold));
+        AddMessage("2ゴールドを　てにいれた！");
+        yield return ShowMessage();
     }
 }
