@@ -29,6 +29,7 @@ Unityでドラクエ1風RPGを制作するプロジェクト
 
 # 使用素材
 ・フォント：http://itouhiro.hatenablog.com/entry/20130602/font
+・モンスター図鑑モンスター図鑑：http://dq1.opatil.com/data/monster.html
 
 # 注意
 ・本プロジェクトは著作権に関わるものも存在するので、全て個人での私的利用に限ります。
