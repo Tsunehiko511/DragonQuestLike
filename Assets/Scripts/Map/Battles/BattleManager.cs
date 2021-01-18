@@ -7,7 +7,7 @@ using Battles;
 
 public class BattleManager : MonoBehaviour
 {
-    [SerializeField] GameObject battlePanel = default;
+    [SerializeField] BattlePanel battlePanel = default;
     [SerializeField] GameObject commandPanel = default;
     [SerializeField] MessagePanel messagePanel = default;
     // EnemyCore enemy;
@@ -20,7 +20,7 @@ public class BattleManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
-        battlePanel.SetActive(false);
+        battlePanel.gameObject.SetActive(false);
         commandPanel.SetActive(false);
     }
 
@@ -31,7 +31,8 @@ public class BattleManager : MonoBehaviour
     public void SetupBattle(EnemyCore enemy)
     {
         // バトル画面を出す
-        battlePanel.SetActive(true);
+        battlePanel.gameObject.SetActive(true);
+        battlePanel.SetMoster(enemy.sprite);
         this.player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerCore>().Battler;
         this.enemy = enemy.battler;
         messagePanel.Init();
@@ -97,7 +98,8 @@ public class BattleManager : MonoBehaviour
 
     public void EndBattle()
     {
-        battlePanel.SetActive(false);
+        messagePanel.ResetTextPositions();
+        battlePanel.gameObject.SetActive(false);
         // playerを動けるようにする
         GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMove>().canMove = true;
     }
