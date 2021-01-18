@@ -9,7 +9,9 @@ namespace Enemys
         Slime,
         SlimeBeth,
         Drakey,
-        Ghost
+        Ghost,
+        Wizard,
+        Scorpion,
     }
 
     [Serializable]

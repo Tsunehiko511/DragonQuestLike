@@ -7,6 +7,7 @@ using DG.Tweening;
 public class MessagePanel : MonoBehaviour
 {
     [SerializeField] Text[] messageTexts = default;
+    Vector2[] defaultTextPosition = new Vector2[3];
     public const string WAIT = "WAIT";
     public List<string> messages = new List<string>()
     {
@@ -23,6 +24,14 @@ public class MessagePanel : MonoBehaviour
 
     int correntLine = 0;
 
+    private void Awake()
+    {
+        for (int i=0; i<defaultTextPosition.Length; i++)
+        {
+            defaultTextPosition[i] = messageTexts[i].transform.position;
+        }
+    }
+
     public void Init()
     {
         correntLine = 0;
@@ -32,7 +41,12 @@ public class MessagePanel : MonoBehaviour
         {
             text.text = "";
         }
+        for (int i = 0; i < defaultTextPosition.Length; i++)
+        {
+            defaultTextPosition[i] = messageTexts[i].transform.position;
+        }
     }
+
 
     public void AddMessage(string message)
     {
@@ -174,5 +188,14 @@ public class MessagePanel : MonoBehaviour
         AddMessage(string.Format("けいけんち　{0}ポイントかくとく", point));
         AddMessage(string.Format("{0}ゴールドを　てにいれた！", gold));
         yield return ShowMessage();
+    }
+
+    public void ResetTextPositions()
+    {
+        for (int i = 0; i < defaultTextPosition.Length; i++)
+        {
+            messageTexts[i].transform.position = defaultTextPosition[i];
+        }
+
     }
 }

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyList:
   - monsterType: 0
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: ab43048f650264e04bd55e1f210bbfcd, type: 3}
     battler:
       isPlayer: 0
       status:
@@ -29,7 +29,7 @@ MonoBehaviour:
         speed:
           value: 1
   - monsterType: 1
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: 2235da1c3f2c44cfeb5b870053c80177, type: 3}
     battler:
       isPlayer: 0
       status:
@@ -44,7 +44,7 @@ MonoBehaviour:
         speed:
           value: 1
   - monsterType: 2
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: caeec33b4d69049e1a82c7656b7870a2, type: 3}
     battler:
       isPlayer: 0
       status:
@@ -59,7 +59,7 @@ MonoBehaviour:
         speed:
           value: 5
   - monsterType: 3
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: e889b820c9a39465b911265c1d6a2846, type: 3}
     battler:
       isPlayer: 0
       status:
@@ -69,6 +69,36 @@ MonoBehaviour:
           value: 1
         hp:
           value: 10
+        at:
+          value: 1
+        speed:
+          value: 2
+  - monsterType: 4
+    sprite: {fileID: 21300000, guid: 31f673350704145d7a4ca27059c25419, type: 3}
+    battler:
+      isPlayer: 0
+      status:
+        name:
+          value: "\u9B54\u6CD5\u4F7F\u3044"
+        level:
+          value: 1
+        hp:
+          value: 3
+        at:
+          value: 1
+        speed:
+          value: 2
+  - monsterType: 5
+    sprite: {fileID: 21300000, guid: cd9e0c07be0e94c3098922b6f1e1d8a7, type: 3}
+    battler:
+      isPlayer: 0
+      status:
+        name:
+          value: "\u30B5\u30BD\u30EA"
+        level:
+          value: 1
+        hp:
+          value: 3
         at:
           value: 1
         speed:
