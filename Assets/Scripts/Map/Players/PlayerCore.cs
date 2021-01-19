@@ -1,4 +1,4 @@
-﻿
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,7 +16,7 @@ namespace Players
         IntReactiveProperty mp = new IntReactiveProperty(1);
         IntReactiveProperty gold = new IntReactiveProperty(1);
         IntReactiveProperty experiencePoint = new IntReactiveProperty(1);
-
+        PLayerUI playerUI;
         public Battles.BattlerBase Battler
         {
             get => battler;
@@ -24,6 +24,17 @@ namespace Players
 
         void Awake()
         {
+            playerUI = GetComponent<PLayerUI>();
+        }
+
+        private void Start()
+        {
+            UpdateUI();
+        }
+
+        public void UpdateUI()
+        {
+            playerUI.UpdateUI(battler);
         }
 
 

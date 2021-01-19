@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UniRx;
+
 namespace Battles
 {
     public enum Commands
@@ -19,25 +19,30 @@ namespace Battles
         [Serializable]
         public struct Status
         {
-            public StringReactiveProperty name;
-            public IntReactiveProperty level;
-            public IntReactiveProperty hp;
-            public IntReactiveProperty at;
-            public IntReactiveProperty speed;
+            public string name;
+            public int level;
+            public int hp;
+            public int mp;
+            public int at;
+            public int speed;
+            public int ex;
+            public int gold;
         }
 
         public BattlerBase(BattlerBase battlerBase, bool isPlayer = false)
         {
-            status.name = new StringReactiveProperty(battlerBase.Name);
-            status.hp = new IntReactiveProperty(battlerBase.HP);
-            status.at = new IntReactiveProperty(battlerBase.AT);
-            status.speed = new IntReactiveProperty(battlerBase.Speed);
+            status.name = battlerBase.Name;
+            status.hp = battlerBase.HP;
+            status.at = battlerBase.AT;
+            status.speed = battlerBase.Speed;
+            status.ex = battlerBase.Ex;
+            status.gold = battlerBase.Gold;
             this.isPlayer = isPlayer;
         }
 
         [SerializeField] bool isPlayer;
 
-        public delegate IEnumerator Command(IDamageable damageable);
+        public delegate IEnumerator Command(IDamageable damageable, Action<List<string>> message);
         public Command selectCommand = default;
         public Command SelectCommand
         {
@@ -59,51 +64,99 @@ namespace Battles
 
         public string Name
         {
-            get => status.name.Value;
-            set => status.name.Value = value;
+            get => status.name;
+            set => status.name = value;
 
         }
+        public int Level
+        {
+            get => status.level;
+            set => status.level = value;
+
+        }
+
         public int HP
         {
-            get => status.hp.Value;
+            get => status.hp;
             set
             {
-                status.hp.Value = value;
-                if (status.hp.Value <= 0)
+                status.hp = value;
+                if (status.hp <= 0)
                 {
-                    status.hp.Value = 0;
+                    status.hp = 0;
+                }
+            }
+        }
+        public int MP
+        {
+            get => status.mp;
+            set
+            {
+                status.mp = value;
+                if (status.mp <= 0)
+                {
+                    status.mp = 0;
                 }
             }
         }
         public int AT
         {
-            get => status.at.Value;
-            set => status.at.Value = value;
+            get => status.at;
+            set => status.at = value;
         }
 
 
         public int Speed
         {
-            get => status.speed.Value;
-            set => status.speed.Value = value;
+            get => status.speed;
+            set => status.speed = value;
+
+        }
+        public int Ex
+        {
+            get => status.ex;
+            set => status.ex = value;
+
+        }
+        public int Gold
+        {
+            get => status.gold;
+            set => status.gold = value;
 
         }
 
         public Status status = new Status();
 
-        public IEnumerator Damage(int damage)
+        public IEnumerator Damage(int damage, Action<List<string>> message)
         {
-            Debug.Log(Name + "は" + damage + "をうけた");
             HP -= damage;
+            if (isPlayer)
+            {
+                message(new List<string>
+                {
+                    Name + "は　" + damage + "ポイントの",
+                    "ダメージを　うけた!"
+                });
+            }
+            else
+            {
+                message(new List<string>
+                {
+                    Name + "に　" + damage + "ポイントの",
+                    "ダメージを　あたえた!"
+                });
+            }
             return null;
-            // yield return new WaitForSeconds(0.3f);
         }
 
-        public IEnumerator Attack(IDamageable damageable)
+        public IEnumerator Attack(IDamageable damageable, Action<List<string>> messages)
         {
-            Debug.Log(Name + "のこうげき");
-            yield return damageable.Damage(status.at.Value);
-            // yield return new WaitForSeconds(0.3f);
+            List<string> resultMessage = new List<string>()
+            {
+                Name + "の　こうげき！"
+            };
+            yield return damageable.Damage(status.at, r => resultMessage.AddRange(r));
+            messages(resultMessage);
         }
 
         public bool IsDied()
@@ -111,19 +164,19 @@ namespace Battles
             return HP <= 0;
         }
 
-        public IEnumerator MagicAction(IDamageable damageable)
+        public IEnumerator MagicAction(IDamageable damageable, Action<List<string>> messages)
         {
             Debug.Log("じゅもん");
             yield return null;
         }
 
-        public IEnumerator Escape(IDamageable damageable)
+        public IEnumerator Escape(IDamageable damageable, Action<List<string>> messages)
         {
             Debug.Log("逃げる");
             yield return null;
         }
 
-        public IEnumerator UseTool(IDamageable damageable)
+        public IEnumerator UseTool(IDamageable damageable, Action<List<string>> messages)
         {
             Debug.Log("どうぐ");
             yield return null;
@@ -149,4 +202,6 @@ namespace Battles
             }
         }
     }
+
+    // わざごとにエフェクトがある
 }
