@@ -1,10 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public interface IAttackable
 {
-    IEnumerator Attack(IDamageable damageable);
+    IEnumerator Attack(IDamageable damageable, Action<List<string>> messages);
 }
 
 public interface IDeadable
@@ -14,8 +15,8 @@ public interface IDeadable
 
 public interface IActionable
 {
-    IEnumerator Attack(IDamageable damageable);
-    IEnumerator MagicAction(IDamageable damageable);
-    IEnumerator Escape(IDamageable damageable);
-    IEnumerator UseTool(IDamageable damageable);
+    IEnumerator Attack(IDamageable damageable, Action<List<string>> messages);
+    IEnumerator MagicAction(IDamageable damageable, Action<List<string>> messages);
+    IEnumerator Escape(IDamageable damageable, Action<List<string>> messages);
+    IEnumerator UseTool(IDamageable damageable, Action<List<string>> messages);
 }
