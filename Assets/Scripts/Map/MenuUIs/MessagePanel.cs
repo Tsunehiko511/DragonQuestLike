@@ -48,9 +48,20 @@ public class MessagePanel : MonoBehaviour
     }
 
 
+
+
     public void AddMessage(string message)
     {
         messages.Add(message);
+    }
+    public void AddMessage(List<string> messages)
+    {
+        Debug.Log(messages);
+        Debug.Log(messages.Count);
+        foreach (string message in messages)
+        {
+            this.messages.Add(message);
+        }
     }
 
     public IEnumerator ShowMessage()
@@ -155,32 +166,23 @@ public class MessagePanel : MonoBehaviour
         }
     }
 
-    public IEnumerator BattleMessageAttack(string attacker, string defender, bool isPlayer)
+
+    public IEnumerator BattleMessageDie(Battles.BattlerBase battler)
     {
-        if (isPlayer)
+        if (battler.IsPlayer)
         {
-            BattleMessagePlayerAttack(attacker, defender);
+            AddMessage(string.Format("{0}　はたおれてしまった！", battler.Name));
         }
         else
         {
-            BattleMessageEnemyAttack(defender, attacker);
+            // Playerにも反映する必要がある
+            AddMessage(string.Format("{0}　をたおした！", battler.Name));
+            AddMessage(string.Format("けいけんち　{0}ポイントかくとく", battler.Ex));
+            AddMessage(string.Format("{0}ゴールドを　てにいれた！", battler.Gold));
         }
         yield return ShowMessage();
     }
 
-    void BattleMessagePlayerAttack(string playerName, string enemyName)
-    {
-        AddMessage(playerName + "の　こうげき！");
-        AddMessage(enemyName + "に　3ポイントの");
-        AddMessage("ダメージを　あたえた！");
-    }
-
-    void BattleMessageEnemyAttack(string playerName, string enemyName)
-    {
-        AddMessage("　"+enemyName + "の　こうげき！");
-        AddMessage("　" + playerName + "は　2ポイントの");
-        AddMessage("　" + "ダメージを　うけた！");
-    }
 
     public IEnumerator BattleMessageEnemyDie(string enemyName, int point, int gold)
     {

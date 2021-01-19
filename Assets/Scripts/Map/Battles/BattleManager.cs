@@ -4,6 +4,7 @@ using UnityEngine;
 using Players;
 using Enemys;
 using Battles;
+using System;
 
 public class BattleManager : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] MessagePanel messagePanel = default;
     // EnemyCore enemy;
 
+    PlayerCore playerCore;
     BattlerBase player;
     BattlerBase enemy;
     // 敵を表示するもの:追加してやる？
@@ -33,7 +35,8 @@ public class BattleManager : MonoBehaviour
         // バトル画面を出す
         battlePanel.gameObject.SetActive(true);
         battlePanel.SetMoster(enemy.sprite);
-        this.player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerCore>().Battler;
+        playerCore = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerCore>();
+        this.player = playerCore.Battler;
         this.enemy = enemy.battler;
         messagePanel.Init();
         StartCoroutine(Battle());
@@ -42,6 +45,7 @@ public class BattleManager : MonoBehaviour
     IEnumerator Battle()
     {
         messagePanel.AddMessage(this.enemy.Name + "が　あらわれた！");
+        List<string> callBackMessages = new List<string>();
         // コマンド表示
         while (true)
         {
@@ -49,9 +53,7 @@ public class BattleManager : MonoBehaviour
             messagePanel.AddMessage(MessagePanel.WAIT);
             yield return messagePanel.ShowMessage();
             yield return WaitPlayerCommand(); // ここでコマンドを受け取る？ Playerにコマンドをセットする
-
             BattlerBase first, second;
-
             if (player.Speed > enemy.Speed)
             {
                 first = player;
@@ -63,28 +65,47 @@ public class BattleManager : MonoBehaviour
                 second = player;
             }
 
-            yield return first.SelectCommand(second);
-            yield return messagePanel.BattleMessageAttack(first.Name, second.Name, first.IsPlayer);
-            if (second.IsDied())
+            bool isDead = false;
+            // TODO:コマンド発動のメッセージを表示
+            yield return BattlerAction(atttacker: first, reciever: second, r => isDead = r);
+            if (isDead)
             {
-                yield return new WaitForSeconds(0.2f);
-                yield return messagePanel.BattleMessageEnemyDie(enemyName:enemy.Name, point:1, gold:2);
-                yield return new WaitForSeconds(2f);
                 break;
             }
 
             yield return new WaitForSeconds(0.5f);
-            yield return second.SelectCommand(first);
-            yield return messagePanel.BattleMessageAttack(second.Name, first.Name, second.IsPlayer);
-            if (first.IsDied())
+            yield return  BattlerAction(atttacker:second, reciever: first, r => isDead = r);
+            if (isDead)
             {
-                Debug.Log(first.Name + "の死亡");
                 break;
             }
+
         }
         EndBattle();
     }
 
+    IEnumerator BattlerAction(BattlerBase atttacker, BattlerBase reciever, Action<bool> isDied)
+    {
+        yield return atttacker.SelectCommand(reciever, messages => messagePanel.AddMessage(messages));
+        yield return messagePanel.ShowMessage();
+        playerCore.UpdateUI();
+        bool result = reciever.IsDied();
+        isDied(result);
+        if (result)
+        {
+            yield return new WaitForSeconds(0.2f);
+            yield return messagePanel.BattleMessageDie(reciever);
+            if (atttacker.IsPlayer)
+            {
+                atttacker.Ex += reciever.Ex;
+                atttacker.Gold += reciever.Gold;
+            }
+            playerCore.UpdateUI();
+            yield return new WaitForSeconds(2f);
+
+        }
+
+    }
 
     IEnumerator WaitPlayerCommand()
     {
@@ -111,5 +132,4 @@ public class BattleManager : MonoBehaviour
             EndBattle();
         }
     }
-
 }
