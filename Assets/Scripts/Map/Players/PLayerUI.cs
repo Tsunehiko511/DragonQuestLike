@@ -5,11 +5,11 @@ using UnityEngine.UI;
 
 public class PLayerUI : MonoBehaviour
 {
-    [SerializeField] Text levelText;
-    [SerializeField] Text hpText;
-    [SerializeField] Text mpText;
-    [SerializeField] Text goldText;
-    [SerializeField] Text exText;
+    [SerializeField] Text levelText = default;
+    [SerializeField] Text hpText = default;
+    [SerializeField] Text mpText = default;
+    [SerializeField] Text goldText = default;
+    [SerializeField] Text exText = default;
 
     public void UpdateUI(Battles.BattlerBase player)
     {

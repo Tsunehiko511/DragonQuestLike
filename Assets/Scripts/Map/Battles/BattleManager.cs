@@ -4,7 +4,6 @@ using UnityEngine;
 using Players;
 using Enemys;
 using Battles;
-using System;
 
 public class BattleManager : MonoBehaviour
 {
@@ -22,13 +21,201 @@ public class BattleManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
-        battlePanel.gameObject.SetActive(false);
-        commandPanel.SetActive(false);
     }
 
-    private void Start()
+
+    enum BattlePhase
     {
+        Initialize,
+        ChooseCommand,
+        ChooseSubCommand,
+        EnemyChoose,
+        Executing,
+        Result,
+        End,
     }
+
+    [SerializeField] BattlePhase phase;
+
+    Group playerGroup;
+    Group enemyGroup;
+    [SerializeField] WindowBattleLog windowBattleLog = default;
+    [SerializeField] WindowBattleCommand windowBattleCommand = default;
+    [SerializeField] WindowBattleCommand windowBattleMagicCommand = default;
+
+    void Start()
+    {
+        windowBattleCommand.Initialize();
+        windowBattleMagicCommand.Initialize();
+        playerGroup = new Group();
+        enemyGroup = new Group();
+
+        // 出現してきた敵を生成
+        enemyGroup.AddEnemy("スライム", 5, 0, 1);
+        playerGroup.AddCharacter("しまづ", 20, 7, 1);
+
+        // Playerの持ち物と技を読み込む？その都度読み込む？
+        playerGroup.member.AddCommand(new CommandAttack("こうげき", 5, "こうげき", "", "", enemyGroup.member));
+        Command command = new CommandMenu("じゅもん", "", "", "失敗？？？");
+        playerGroup.member.AddCommand(command);
+        // 技の設定
+        (command as CommandMenu).AddSub(new CommandSpell("ホイミー", -10, -17, 4, "ホイミーを使った", "かいふくした", "MPがたりない", target: playerGroup.member));
+        (command as CommandMenu).AddSub(new CommandSpell("ギラ", 5, 12, 4, "ギラを使った", "ダメージ", "MPがたりない", target: enemyGroup.member, spellType: SpellType.Hurt));
+        (command as CommandMenu).AddSub(new CommandSpell("ラリホー", 0, 0, 2, "ラリホー", "ネタ", "MPがたりない", target: enemyGroup.member, spellType: SpellType.Sleep));
+
+        playerGroup.member.AddCommand(new CommandEscape("にげる", "にげようとした", "にげきった", "まわりこまれた！", enemyGroup.member));
+        playerGroup.member.AddCommand(new CommandEscape("どうぐ", "にげようとした", "にげきった", "まわりこまれた！", enemyGroup.member));
+        enemyGroup.member.AddCommand(new CommandAttack("こうげき", 5, "こうげき", "", "", playerGroup.member));
+
+
+        playerCore = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerCore>();
+        playerCore.GetComponent<PlayerMove>().canMove = false;
+        phase = BattlePhase.Initialize;
+        StartCoroutine(BattleCorutine());
+    }
+
+    
+    List<Command> commands = new List<Command>();
+
+    bool InputYES
+    {
+        get => Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.X);
+    }
+    bool InputNO
+    {
+        get => Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.C) || Input.GetKeyDown(KeyCode.Z);
+    }
+
+    IEnumerator BattleCorutine()
+    {
+        phase = BattlePhase.Initialize;
+        Command command = null;
+
+        while (true)
+        {
+            yield return null;
+            switch (phase)
+            {
+                case BattlePhase.Initialize:
+                    battlePanel.gameObject.SetActive(true);
+                    windowBattleLog.Open();
+                    windowBattleLog.ClearText();
+                    windowBattleLog.AddText(VocabularyHelper.BattleStart(enemyGroup.member.name), breakline: false);
+                    windowBattleLog.AddText("コマンド？");
+                    yield return WaitMessage();
+                    ChangePhase(BattlePhase.ChooseCommand);
+                    break;
+                case BattlePhase.ChooseCommand:
+                    windowBattleCommand.SetInteractable(true);
+                    windowBattleCommand.Open();
+                    windowBattleCommand.ShowCursor();
+                    yield return new WaitUntil(() => InputYES);
+                    command = playerGroup.member.commands[windowBattleCommand.current];
+                    if (command is CommandMenu)
+                    {
+                        windowBattleCommand.SetInteractable(false);
+                        ChangePhase(BattlePhase.ChooseSubCommand);
+                    }
+                    else
+                    {
+                        ChangePhase(BattlePhase.Executing);
+                    }
+                    break;
+                case BattlePhase.ChooseSubCommand:
+                    windowBattleMagicCommand.Open();
+                    CommandMenu commandMenu = command as CommandMenu;
+                    windowBattleMagicCommand.Spawn(commandMenu.subs);
+
+                    yield return new WaitUntil(() => InputYES || InputNO);
+                    if (InputNO)
+                    {
+                        windowBattleMagicCommand.Close();
+                        ChangePhase(BattlePhase.ChooseCommand);
+                        break;
+                    }
+                    // 何をやったのか?
+                    Debug.Log("閉じる");
+                    windowBattleCommand.Close();
+                    windowBattleMagicCommand.Close();
+                    command = playerGroup.member.commands[windowBattleCommand.current];
+                    if (command is CommandMenu)
+                    {
+                        CommandSpell commandSpell = (command as CommandMenu).subs[windowBattleMagicCommand.current] as CommandSpell;
+                        commandSpell.Execute();
+                        Debug.Log(commandSpell.useMessage);
+                        Debug.Log(commandSpell.resultMessage);
+                    }
+                    ChangePhase(BattlePhase.Result);
+                    break;
+                case BattlePhase.Executing:
+                    yield return Execute();
+                    break;
+                case BattlePhase.Result:
+                    yield return new WaitForSeconds(0.5f);
+                    windowBattleLog.ShowVictoryText(enemyGroup.member);
+                    ChangePhase(BattlePhase.End);
+                    break;
+                case BattlePhase.End:
+                    // TODOゲーム終了時にすることまとめ
+                    yield break;
+            }
+            yield return null;
+        }
+    }
+
+    bool IsBattleOver()
+    {
+        // どちらか一方が死亡している
+        return enemyGroup.Dead() || playerGroup.Dead();
+    }
+    IEnumerator Execute()
+    {
+        Debug.Log("コマンド？");
+        while (commands.Count > 0)
+        {
+            Command command = commands[0];
+            commands.RemoveAt(0);
+            command.Execute();
+            // windowBattleLog.AddText(command.useMessage);
+            yield return WaitMessage();
+            
+            if (command.success)
+            {
+                
+            }
+            yield return WaitMessage();
+            if (IsBattleOver())
+            {
+                ChangePhase(BattlePhase.Result);
+            }
+            else if (command is CommandEscape)
+            {
+                if (command.success)
+                {
+                    ChangePhase(BattlePhase.End);
+                    break;
+                }
+            }
+            // PlayerのHPを反映
+        }
+        windowBattleLog.AddText("コマンド？");
+        ChangePhase(BattlePhase.ChooseCommand);
+    }
+
+    IEnumerator WaitMessage()
+    {
+        while (windowBattleLog.IsIdle() == false)
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+
+    void ChangePhase(BattlePhase phase)
+    {
+        this.phase = phase;
+    }
+
+
 
     public void SetupBattle(EnemyCore enemy)
     {
@@ -39,85 +226,13 @@ public class BattleManager : MonoBehaviour
         this.player = playerCore.Battler;
         this.enemy = enemy.battler;
         messagePanel.Init();
-        StartCoroutine(Battle());
-    }
-
-    IEnumerator Battle()
-    {
-        messagePanel.AddMessage(this.enemy.Name + "が　あらわれた！");
-        List<string> callBackMessages = new List<string>();
-        // コマンド表示
-        while (true)
-        {
-            messagePanel.AddMessage("コマンド？");
-            messagePanel.AddMessage(MessagePanel.WAIT);
-            yield return messagePanel.ShowMessage();
-            yield return WaitPlayerCommand(); // ここでコマンドを受け取る？ Playerにコマンドをセットする
-            BattlerBase first, second;
-            if (player.Speed > enemy.Speed)
-            {
-                first = player;
-                second = enemy;
-            }
-            else
-            {
-                first = enemy;
-                second = player;
-            }
-
-            bool isDead = false;
-            // TODO:コマンド発動のメッセージを表示
-            yield return BattlerAction(atttacker: first, reciever: second, r => isDead = r);
-            if (isDead)
-            {
-                break;
-            }
-
-            yield return new WaitForSeconds(0.5f);
-            yield return  BattlerAction(atttacker:second, reciever: first, r => isDead = r);
-            if (isDead)
-            {
-                break;
-            }
-
-        }
-        EndBattle();
-    }
-
-    IEnumerator BattlerAction(BattlerBase atttacker, BattlerBase reciever, Action<bool> isDied)
-    {
-        yield return atttacker.SelectCommand(reciever, messages => messagePanel.AddMessage(messages));
-        yield return messagePanel.ShowMessage();
-        playerCore.UpdateUI();
-        bool result = reciever.IsDied();
-        isDied(result);
-        if (result)
-        {
-            yield return new WaitForSeconds(0.2f);
-            yield return messagePanel.BattleMessageDie(reciever);
-            if (atttacker.IsPlayer)
-            {
-                atttacker.Ex += reciever.Ex;
-                atttacker.Gold += reciever.Gold;
-            }
-            playerCore.UpdateUI();
-            yield return new WaitForSeconds(2f);
-
-        }
-
-    }
-
-    IEnumerator WaitPlayerCommand()
-    {
-        commandPanel.SetActive(true);
-        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
-        commandPanel.SetActive(false);
+        // 
     }
 
 
 
 
-    public void EndBattle()
+    void EndBattle()
     {
         messagePanel.ResetTextPositions();
         battlePanel.gameObject.SetActive(false);
