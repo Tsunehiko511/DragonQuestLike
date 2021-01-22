@@ -23,7 +23,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3219951127416668431}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -71,7 +71,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -176.9, y: 0}
+  m_AnchoredPosition: {x: -170, y: 0}
   m_SizeDelta: {x: 40, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3219951127766710803
@@ -126,8 +126,8 @@ GameObject:
   - component: {fileID: 3219951127916361105}
   - component: {fileID: 3219951127916361111}
   - component: {fileID: 3219951127916361110}
-  - component: {fileID: 3219951127916361109}
   - component: {fileID: 3219951127916361108}
+  - component: {fileID: 6901316831575671711}
   m_Layer: 5
   m_Name: MessageText
   m_TagString: Untagged
@@ -183,10 +183,10 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: b6930149d01aa457081d68a991de4acf, type: 3}
-    m_FontSize: 30
+    m_FontSize: 35
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 5
+    m_MinSize: 3
     m_MaxSize: 50
     m_Alignment: 3
     m_AlignByGeometry: 0
@@ -194,24 +194,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: START
---- !u!114 &3219951127916361109
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3219951127916361104}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a3bde1794ed74b93bc9a6f0683892bd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isFirstSelect: 0
-  cursor: {fileID: 3219951127766710812}
-  SubmitEvent:
-    m_PersistentCalls:
-      m_Calls: []
+  m_Text: "\u305F\u305F\u304B\u3046"
 --- !u!114 &3219951127916361108
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,3 +235,18 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 3219951127916361110}
+--- !u!114 &6901316831575671711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3219951127916361104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86bd5855c109540d58765dfa3d0f4575, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isFirstSelect: 0
+  cursor: {fileID: 3219951127766710812}
+  id: 0

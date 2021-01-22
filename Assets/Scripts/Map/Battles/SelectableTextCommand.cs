@@ -4,16 +4,21 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class SelectCommand : MonoBehaviour, ISelectHandler, IDeselectHandler, ISubmitHandler
+public class SelectableTextCommand : MonoBehaviour, ISelectHandler, IDeselectHandler, ISubmitHandler
 {
-    [SerializeField] bool isFirstSelect = default;
+    public bool isFirstSelect = default;
     [SerializeField] GameObject cursor = default;
-    
-    public UnityEvent SubmitEvent = default;
+
+    public int id;
+
+    public UnityAction<int> SubmitAction = default;
 
     private void OnEnable()
     {
-        Debug.Log("aaa");
+        Init();
+    }
+    public void Init()
+    {
         if (isFirstSelect)
         {
             // すぐには移動できない:
@@ -27,26 +32,43 @@ public class SelectCommand : MonoBehaviour, ISelectHandler, IDeselectHandler, IS
         yield return new WaitForSeconds(0.2f);
         // 選択状態にする
         GetComponent<Selectable>().Select();
+
     }
 
     // 選択されたとき
     public void OnSelect(BaseEventData eventData)
     {
-        Debug.Log(gameObject.name);
         cursor.SetActive(true);
+        isFirstSelect = true;
+        Debug.Log(id);
+        SubmitAction.Invoke(id);
     }
 
     // 選択が外れたとき
     public void OnDeselect(BaseEventData eventData)
     {
         cursor.SetActive(false);
+        isFirstSelect = false;
     }
 
     // スペースが押されたとき
     public void OnSubmit(BaseEventData eventData)
     {
-        Debug.Log(GetComponent<Text>().text);
-        SubmitEvent.Invoke();
+        SubmitAction.Invoke(id);
     }
 
+    public void OnActive()
+    {
+        cursor.SetActive(isFirstSelect);
+    }
+
+    public void SetNavigation(SelectableTextCommand up, SelectableTextCommand down)
+    {
+        Selectable select = GetComponent<Selectable>();
+        Navigation navigation = select.navigation;
+        navigation.mode = Navigation.Mode.Explicit;
+        navigation.selectOnUp = up.GetComponent<Selectable>();
+        navigation.selectOnDown = down.GetComponent<Selectable>();
+        select.navigation = navigation;
+    }
 }
