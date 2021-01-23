@@ -51,16 +51,16 @@ public class BattleManager : MonoBehaviour
         enemyGroup = new Group();
 
         // 出現してきた敵を生成
-        enemyGroup.AddEnemy("スライム", 5, 0, 1);
-        playerGroup.AddCharacter("しまづ", 20, 7, 1);
+        enemyGroup.AddEnemy("スライム", hp: 15, mp: 5, level: 1);
+        playerGroup.AddCharacter("しまづ", hp: 20, mp: 7, level: 1);
 
         // Playerの持ち物と技を読み込む？その都度読み込む？
         playerGroup.member.AddCommand(new CommandAttack("こうげき", 5, "こうげき", "", "", enemyGroup.member));
         Command command = new CommandMenu("じゅもん", "", "", "失敗？？？");
         playerGroup.member.AddCommand(command);
         // 技の設定
-        (command as CommandMenu).AddSub(new CommandSpell("ホイミー", -10, -17, 4, "ホイミーを使った", "かいふくした", "MPがたりない", target: playerGroup.member));
-        (command as CommandMenu).AddSub(new CommandSpell("ギラ", 5, 12, 4, "ギラを使った", "ダメージ", "MPがたりない", target: enemyGroup.member, spellType: SpellType.Hurt));
+        (command as CommandMenu).AddSub(new CommandSpell("ホイミー", baseDamage: -10, maxDamage: -17, mpCost: 4, "ホイミーを使った", "{0}は　{1}ポイントかいふくした", "MPがたりない", target: playerGroup.member));
+        (command as CommandMenu).AddSub(new CommandSpell("ギラ", baseDamage: 5, maxDamage: 12, mpCost: 2, "ギラを使った", "ダメージ", "MPがたりない", target: enemyGroup.member, spellType: SpellType.Hurt));
         (command as CommandMenu).AddSub(new CommandSpell("ラリホー", 0, 0, 2, "ラリホー", "ネタ", "MPがたりない", target: enemyGroup.member, spellType: SpellType.Sleep));
 
         playerGroup.member.AddCommand(new CommandEscape("にげる", "にげようとした", "にげきった", "まわりこまれた！", enemyGroup.member));
@@ -118,6 +118,8 @@ public class BattleManager : MonoBehaviour
                     }
                     else
                     {
+                        commands.Add(command);
+                        windowBattleCommand.Close();
                         ChangePhase(BattlePhase.Executing);
                     }
                     break;
@@ -134,18 +136,12 @@ public class BattleManager : MonoBehaviour
                         break;
                     }
                     // 何をやったのか?
-                    Debug.Log("閉じる");
+                    command = commandMenu.subs[windowBattleMagicCommand.current] as CommandSpell;
+                    commands.Add(command);
+
                     windowBattleCommand.Close();
                     windowBattleMagicCommand.Close();
-                    command = playerGroup.member.commands[windowBattleCommand.current];
-                    if (command is CommandMenu)
-                    {
-                        CommandSpell commandSpell = (command as CommandMenu).subs[windowBattleMagicCommand.current] as CommandSpell;
-                        commandSpell.Execute();
-                        Debug.Log(commandSpell.useMessage);
-                        Debug.Log(commandSpell.resultMessage);
-                    }
-                    ChangePhase(BattlePhase.Result);
+                    ChangePhase(BattlePhase.Executing);
                     break;
                 case BattlePhase.Executing:
                     yield return Execute();
@@ -153,10 +149,13 @@ public class BattleManager : MonoBehaviour
                 case BattlePhase.Result:
                     yield return new WaitForSeconds(0.5f);
                     windowBattleLog.ShowVictoryText(enemyGroup.member);
+                    yield return WaitMessage();
                     ChangePhase(BattlePhase.End);
                     break;
                 case BattlePhase.End:
                     // TODOゲーム終了時にすることまとめ
+                    yield return new WaitForSeconds(1f);
+                    battlePanel.gameObject.SetActive(false);
                     yield break;
             }
             yield return null;
@@ -176,29 +175,29 @@ public class BattleManager : MonoBehaviour
             Command command = commands[0];
             commands.RemoveAt(0);
             command.Execute();
-            // windowBattleLog.AddText(command.useMessage);
+            windowBattleLog.AddText(command.useMessage);
             yield return WaitMessage();
-            
-            if (command.success)
-            {
-                
-            }
+            windowBattleLog.AddText(command.resultMessage);
             yield return WaitMessage();
             if (IsBattleOver())
             {
                 ChangePhase(BattlePhase.Result);
+                yield break;
             }
             else if (command is CommandEscape)
             {
                 if (command.success)
                 {
+                    windowBattleLog.AddText(command.resultMessage);
+                    yield return WaitMessage();
                     ChangePhase(BattlePhase.End);
-                    break;
+                    yield break;
                 }
             }
             // PlayerのHPを反映
         }
         windowBattleLog.AddText("コマンド？");
+        yield return WaitMessage();
         ChangePhase(BattlePhase.ChooseCommand);
     }
 

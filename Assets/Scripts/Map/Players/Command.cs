@@ -44,6 +44,7 @@ public class Command
     }
 }
 
+// 通常攻撃
 public class CommandAttack : Command
 {
     public int baseDamage { get; private set; }
@@ -52,30 +53,67 @@ public class CommandAttack : Command
     {
         this.baseDamage = baseDamage;
     }
+    // TODO:装備（攻撃力 = ちから+武器の攻撃）
     public override void Execute()
     {
         base.Execute();
 
-        int targetDefense = (int)Mathf.Floor(target.agility / 2);
-        int min, max, damage = baseDamage;
+        int targetDefense = (int)Mathf.Floor(target.agility / 2); // + 装備
+        int min, max, damage = 0;
+
         if (user is Enemy)
         {
             if (user.strength > targetDefense)
             {
+                min = (user.strength - targetDefense / 2) / 4;
+                max = (user.strength - targetDefense / 2) / 2;
+                damage = Random.Range(min, max + 1);
             }
             else
             {
-                min = 0;
+                // 勇者の防御が強い場合
+                Debug.Log("修正:勇者の防御が強い場合");
+                if (Random.Range(0, 100) > 50)
+                {
+                    damage = 1;
+                }
+                else
+                {
+                    damage = 0;
+                }
             }
         }
         else
         {
-            Debug.Log("playerの攻撃");
+            // 勇者の攻撃
+            min = (user.strength - targetDefense / 2) / 4;
+            max = (user.strength - targetDefense / 2) / 2;
+            damage = Random.Range(min, max + 1);
+            if (damage < 1)
+            {
+                if (Random.Range(0, 100) > 50)
+                {
+                    damage = 1;
+                }
+                else
+                {
+                    damage = 0;
+                }
+            }
         }
         target.HP -= damage;
         useMessage = string.Format("{0}の　こうげき", user.name);
-        resultMessage = string.Format("{0}は　{1}ポイントの\nダメージをうけた", target.name, damage);
+        successMessage = string.Format("{0}は　{1}ポイントの\nダメージをうけた", target.name, damage);
+        failMessage = string.Format("{0}は　ひらりとかわした", target.name);
         success = damage > 0;
+        if (success)
+        {
+            resultMessage = successMessage;
+        }
+        else
+        {
+            resultMessage = failMessage;
+        }
     }
 }
 
@@ -134,13 +172,11 @@ public class CommandSpell: CommandAttack
 
     // TODO:何者？
     public bool excuted = true;
-    string excuteMessage;// useMessageと同じ
     public override void Execute()
     {
         // MPがたりない
         if (CanCast() == false)
         {
-            excuteMessage = "";
             resultMessage = "MPがたりない！";
             excuted = false;
             return;
@@ -154,9 +190,9 @@ public class CommandSpell: CommandAttack
         if (success)
         {
             int damage = Random.Range(baseDamage, maxDamage);
-            damage = (int)Mathf.Round(damage);
+            damage = Mathf.RoundToInt(damage);
             target.HP -= damage;
-            resultMessage = string.Format(successMessage, target.name, damage);
+            resultMessage = string.Format(successMessage, target.name, Mathf.Abs(damage));
             // 
         }
         else

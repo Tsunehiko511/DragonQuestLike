@@ -40,7 +40,6 @@ public class SelectableTextCommand : MonoBehaviour, ISelectHandler, IDeselectHan
     {
         cursor.SetActive(true);
         isFirstSelect = true;
-        Debug.Log(id);
         SubmitAction.Invoke(id);
     }
 

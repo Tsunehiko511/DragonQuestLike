@@ -18,6 +18,7 @@ public class Character
         {
             hp = value;
             if (hp < 0) hp = 0;
+            Debug.Log(value);
         }
     }
 
