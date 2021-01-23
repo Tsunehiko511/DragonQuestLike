@@ -45,7 +45,6 @@ public class WindowBattleLog : WindowBase
         {
             Invoke(nameof(AddToDisplay), textSpeed);
         }
-        Debug.Log("aaaaa");
     }
 
     public bool IsIdle()
