@@ -73,7 +73,7 @@ public class CommandAttack : Command
             {
                 // 勇者の防御が強い場合
                 Debug.Log("修正:勇者の防御が強い場合");
-                if (Random.Range(0, 100) > 50)
+                if (Random.Range(0, 100) > 50 || target.condition.IsAsleep())
                 {
                     damage = 1;
                 }
@@ -91,7 +91,7 @@ public class CommandAttack : Command
             damage = Random.Range(min, max + 1);
             if (damage < 1)
             {
-                if (Random.Range(0, 100) > 50)
+                if (Random.Range(0, 100) > 50 || target.condition.IsAsleep())
                 {
                     damage = 1;
                 }
@@ -102,17 +102,15 @@ public class CommandAttack : Command
             }
         }
         target.HP -= damage;
-        useMessage = string.Format("{0}の　こうげき", user.name);
-        successMessage = string.Format("{0}は　{1}ポイントの\nダメージをうけた", target.name, damage);
-        failMessage = string.Format("{0}は　ひらりとかわした", target.name);
+        useMessage = string.Format(useMessage, user.name);
         success = damage > 0;
         if (success)
         {
-            resultMessage = successMessage;
+            resultMessage = string.Format(successMessage, target.name, damage);
         }
         else
         {
-            resultMessage = failMessage;
+            resultMessage = string.Format(failMessage, target.name, name);
         }
     }
 }
@@ -125,7 +123,7 @@ public class CommandEscape : Command
 
     public override void Execute()
     {
-        useMessage = string.Format("{0}は　にげるをせんたく", user.name);
+        useMessage = string.Format(useMessage, user.name);
         // 逃げるを選択
         // メッサージ
         if ((user is Enemy) == false)
@@ -174,18 +172,10 @@ public class CommandSpell: CommandAttack
         }
     }
 
-    // TODO:何者？
-    public bool excuted = true;
+    // 再度実行するためのもの
+
     public override void Execute()
     {
-        // MPがたりない
-        if (CanCast() == false)
-        {
-            resultMessage = "MPがたりない！";
-            excuted = false;
-            return;
-        }
-
         useMessage = string.Format(useMessage, user.name, name);
 
         user.MP -= mpCost;
@@ -208,7 +198,6 @@ public class CommandSpell: CommandAttack
         {
             resultMessage = failMessage;
         }
-        excuted = true;
     }
 
     bool CanCast()
@@ -219,6 +208,20 @@ public class CommandSpell: CommandAttack
         }
         return mpCost < user.mp;
     }
+
+    public bool CanExecute()
+    {
+        // MPがたりない
+        if (CanCast())
+        {
+            return true;
+        }
+        resultMessage = VocabularyHelper.NotEnoughMP;
+        return false;
+
+    }
+
+
 
     // 呪文に対する抵抗値？かかりやすさ？
     int GetTargetResistance()

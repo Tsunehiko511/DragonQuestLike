@@ -54,17 +54,17 @@ public class BattleManager : MonoBehaviour
         playerGroup.AddCharacter("しまづ", hp: 20, mp: 7, level: 1);
 
         // Playerの持ち物と技を読み込む？その都度読み込む？
-        playerGroup.member.AddCommand(new CommandAttack("こうげき", 5, "こうげき", "", "", enemyGroup.member));
-        Command command = new CommandMenu("じゅもん", "", "", "失敗？？？");
+        playerGroup.member.AddCommand(new CommandAttack("こうげき", 5, VocabularyHelper.UseAttack, VocabularyHelper.SuccessPlayerAttack, VocabularyHelper.FailAttack, enemyGroup.member));
+        Command command = new CommandMenu("じゅもん");
         playerGroup.member.AddCommand(command);
         // 技の設定
-        (command as CommandMenu).AddSub(new CommandSpell("ホイミ", baseDamage: -10, maxDamage: -17, mpCost: 4, "ホイミーを使った", "{0}は　{1}ポイントかいふくした", "MPがたりない", target: playerGroup.member));
-        (command as CommandMenu).AddSub(new CommandSpell("ギラ", baseDamage: 5, maxDamage: 12, mpCost: 2, "ギラを使った", "ダメージ", "MPがたりない", target: enemyGroup.member, spellType: SpellType.Hurt));
-        (command as CommandMenu).AddSub(new CommandSpell("ラリホー", 0, 0, 2, "{0}は　ラリホーのじゅもんをとなえた！", "ネタ", "MPがたりない", target: enemyGroup.member, spellType: SpellType.Sleep));
+        (command as CommandMenu).AddSub(new CommandSpell("ホイミ", baseDamage: -10, maxDamage: -17, mpCost: 4, VocabularyHelper.UseSpell, VocabularyHelper.Heal, VocabularyHelper.NotEnoughMP, target: playerGroup.member));
+        (command as CommandMenu).AddSub(new CommandSpell("ギラ", baseDamage: 5, maxDamage: 12, mpCost: 2, VocabularyHelper.UseSpell, VocabularyHelper.SuccessEnemyAttack, VocabularyHelper.FailAttack, target: enemyGroup.member, spellType: SpellType.Hurt));
+        (command as CommandMenu).AddSub(new CommandSpell("ラリホー", baseDamage: 0, maxDamage: 0, mpCost: 2, VocabularyHelper.UseSpell, VocabularyHelper.SuccessSleepSpell, VocabularyHelper.FailSleepSpell, target: enemyGroup.member, spellType: SpellType.Sleep));
 
-        playerGroup.member.AddCommand(new CommandEscape("にげる", "にげようとした", "にげきった", "まわりこまれた！", enemyGroup.member));
-        playerGroup.member.AddCommand(new CommandEscape("どうぐ", "にげようとした", "にげきった", "まわりこまれた！", enemyGroup.member));
-        enemyGroup.member.AddCommand(new CommandAttack("こうげき", 5, "こうげき", "", "", playerGroup.member));
+        playerGroup.member.AddCommand(new CommandEscape("にげる", VocabularyHelper.UseEscape, VocabularyHelper.SuccessEscape, VocabularyHelper.FailSleepSpell, enemyGroup.member));
+        playerGroup.member.AddCommand(new CommandEscape("どうぐ", VocabularyHelper.UseItem, VocabularyHelper.SuccessUseItem, VocabularyHelper.FailUseItem, enemyGroup.member));
+        enemyGroup.member.AddCommand(new CommandAttack("こうげき", 5, VocabularyHelper.UseAttack, VocabularyHelper.SuccessEnemyAttack, VocabularyHelper.FailAttack, playerGroup.member));
         // enemyGroup.member.AddCommand(new CommandSpell("ラリホー", 0, 0, 2, "{0}は　ラリホーのじゅもんをとなえた！", "ネタ", "MPがたりない", target: playerGroup.member, spellType: SpellType.Sleep));
 
 
@@ -143,13 +143,23 @@ public class BattleManager : MonoBehaviour
                         break;
                     }
                     // 何をやったのか?
-                    command = commandMenu.subs[windowBattleMagicCommand.current] as CommandSpell;
-                    commands.Add(command);
+                    CommandSpell commandSpell = commandMenu.subs[windowBattleMagicCommand.current] as CommandSpell;
+                    // もしMPがなかったらアラートを出して、選び直し
+                    if (commandSpell.CanExecute())
+                    {
+                        commands.Add(commandSpell);
+                        windowBattleCommand.Close();
+                        windowBattleMagicCommand.Close();
+                        ChangePhase(BattlePhase.EnemyChoose);
+                    }
+                    else
+                    {
+                        windowBattleLog.AddText(commandSpell.resultMessage);
+                        yield return WaitMessage();
+                        ChangePhase(BattlePhase.ChooseSubCommand);
+                    }
 
 
-                    windowBattleCommand.Close();
-                    windowBattleMagicCommand.Close();
-                    ChangePhase(BattlePhase.EnemyChoose);
                     break;
                 case BattlePhase.EnemyChoose:
                     // 敵の選択
@@ -231,8 +241,9 @@ public class BattleManager : MonoBehaviour
         if (playerGroup.member.condition.IsAsleep() == false)
         {
             windowBattleLog.AddText("コマンド？");
-            yield return WaitMessage();
         }
+        yield return WaitMessage();
+        windowBattleCommand.ResetCommandIndex();
         ChangePhase(BattlePhase.ChooseCommand);
     }
 
