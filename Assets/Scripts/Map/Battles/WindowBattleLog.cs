@@ -10,7 +10,7 @@ public class WindowBattleLog : WindowBase
     float textSpeed;
     float scrollSpeed;
 
-    private const int TOTAL_LINES = 4;     // 行数
+    private const int TOTAL_LINES = 3;     // 行数
     private const int CHARS_PER_LINE = 22; // 文字数
 
     public override void Open()
