@@ -42,7 +42,10 @@ public class WindowBattleCommand : WindowBase
         base.Open();
         SetInteractable(true);
     }
-
+    public void ResetCommandIndex()
+    {
+        current = 0;
+    }
     public void Spawn(List<Command> commandSpells)
     {
         for (int i = 0; i < selectCommands.Length; i++)
