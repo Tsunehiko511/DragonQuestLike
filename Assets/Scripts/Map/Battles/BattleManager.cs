@@ -42,7 +42,6 @@ public class BattleManager : MonoBehaviour
     [SerializeField] WindowBattleLog windowBattleLog = default;
     [SerializeField] WindowBattleCommand windowBattleCommand = default;
     [SerializeField] WindowBattleCommand windowBattleMagicCommand = default;
-
     void Start()
     {
         windowBattleCommand.Initialize();
@@ -59,13 +58,14 @@ public class BattleManager : MonoBehaviour
         Command command = new CommandMenu("じゅもん", "", "", "失敗？？？");
         playerGroup.member.AddCommand(command);
         // 技の設定
-        (command as CommandMenu).AddSub(new CommandSpell("ホイミー", baseDamage: -10, maxDamage: -17, mpCost: 4, "ホイミーを使った", "{0}は　{1}ポイントかいふくした", "MPがたりない", target: playerGroup.member));
+        (command as CommandMenu).AddSub(new CommandSpell("ホイミ", baseDamage: -10, maxDamage: -17, mpCost: 4, "ホイミーを使った", "{0}は　{1}ポイントかいふくした", "MPがたりない", target: playerGroup.member));
         (command as CommandMenu).AddSub(new CommandSpell("ギラ", baseDamage: 5, maxDamage: 12, mpCost: 2, "ギラを使った", "ダメージ", "MPがたりない", target: enemyGroup.member, spellType: SpellType.Hurt));
-        (command as CommandMenu).AddSub(new CommandSpell("ラリホー", 0, 0, 2, "ラリホー", "ネタ", "MPがたりない", target: enemyGroup.member, spellType: SpellType.Sleep));
+        (command as CommandMenu).AddSub(new CommandSpell("ラリホー", 0, 0, 2, "{0}は　ラリホーのじゅもんをとなえた！", "ネタ", "MPがたりない", target: enemyGroup.member, spellType: SpellType.Sleep));
 
         playerGroup.member.AddCommand(new CommandEscape("にげる", "にげようとした", "にげきった", "まわりこまれた！", enemyGroup.member));
         playerGroup.member.AddCommand(new CommandEscape("どうぐ", "にげようとした", "にげきった", "まわりこまれた！", enemyGroup.member));
         enemyGroup.member.AddCommand(new CommandAttack("こうげき", 5, "こうげき", "", "", playerGroup.member));
+        // enemyGroup.member.AddCommand(new CommandSpell("ラリホー", 0, 0, 2, "{0}は　ラリホーのじゅもんをとなえた！", "ネタ", "MPがたりない", target: playerGroup.member, spellType: SpellType.Sleep));
 
 
         playerCore = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerCore>();
@@ -106,6 +106,13 @@ public class BattleManager : MonoBehaviour
                     ChangePhase(BattlePhase.ChooseCommand);
                     break;
                 case BattlePhase.ChooseCommand:
+                    if (playerGroup.member.condition.IsAsleep())
+                    {
+                        command = playerGroup.member.commands[0];
+                        commands.Add(command);
+                        ChangePhase(BattlePhase.EnemyChoose);
+                        break;
+                    }
                     windowBattleCommand.SetInteractable(true);
                     windowBattleCommand.Open();
                     windowBattleCommand.ShowCursor();
@@ -120,7 +127,7 @@ public class BattleManager : MonoBehaviour
                     {
                         commands.Add(command);
                         windowBattleCommand.Close();
-                        ChangePhase(BattlePhase.Executing);
+                        ChangePhase(BattlePhase.EnemyChoose);
                     }
                     break;
                 case BattlePhase.ChooseSubCommand:
@@ -139,8 +146,15 @@ public class BattleManager : MonoBehaviour
                     command = commandMenu.subs[windowBattleMagicCommand.current] as CommandSpell;
                     commands.Add(command);
 
+
                     windowBattleCommand.Close();
                     windowBattleMagicCommand.Close();
+                    ChangePhase(BattlePhase.EnemyChoose);
+                    break;
+                case BattlePhase.EnemyChoose:
+                    // 敵の選択
+                    command = enemyGroup.member.commands[0];
+                    commands.Add(command);
                     ChangePhase(BattlePhase.Executing);
                     break;
                 case BattlePhase.Executing:
@@ -167,17 +181,35 @@ public class BattleManager : MonoBehaviour
         // どちらか一方が死亡している
         return enemyGroup.Dead() || playerGroup.Dead();
     }
+    // 実行の前に目を異常状態の回復フェーズを作る？
     IEnumerator Execute()
     {
         Debug.Log("コマンド？");
+        commands.Sort((unitA, unitB) => unitB.user.agility - unitA.user.agility);
+
+        // 適当な自分のターンを唱える？
         while (commands.Count > 0)
         {
             Command command = commands[0];
             commands.RemoveAt(0);
-            command.Execute();
-            windowBattleLog.AddText(command.useMessage);
-            yield return WaitMessage();
-            windowBattleLog.AddText(command.resultMessage);
+            // 目を覚ましたかどうか
+            // ねむっているなら「ねむっている」と表示
+            // 目を覚ましたなら、目を覚まして、通常行動
+            // ねむっていないなら通常行動
+            // 目を覚ました場合, 行動できるようにしたいが
+
+            if (command.user.condition.IsAsleep())
+            {
+                command.user.condition.Update();
+                string effectMessage = command.user.condition.Check(command.user);
+                windowBattleLog.AddText(effectMessage); // useMessageか？
+            }
+            else
+            {
+                command.Execute();
+                windowBattleLog.AddText(command.useMessage); // useMessageか？
+                windowBattleLog.AddText(command.resultMessage);
+            }
             yield return WaitMessage();
             if (IsBattleOver())
             {
@@ -196,8 +228,11 @@ public class BattleManager : MonoBehaviour
             }
             // PlayerのHPを反映
         }
-        windowBattleLog.AddText("コマンド？");
-        yield return WaitMessage();
+        if (playerGroup.member.condition.IsAsleep() == false)
+        {
+            windowBattleLog.AddText("コマンド？");
+            yield return WaitMessage();
+        }
         ChangePhase(BattlePhase.ChooseCommand);
     }
 
