@@ -45,6 +45,8 @@ public class Character
 
     public List<Command> commands = new List<Command>();
 
+    public Condition condition = new Condition();
+
     public Character(string name = "char", int strength = 3, int agility = 10, int hp = 10, int mp = 5, int level = 1)
     {
         this.name = name;

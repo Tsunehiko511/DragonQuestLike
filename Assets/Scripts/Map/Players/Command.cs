@@ -158,6 +158,9 @@ public class CommandSpell: CommandAttack
     public int maxDamage { get; protected set; }
     public int mpCost { get; protected set; }
     public SpellType type { get; protected set; }
+
+    public StatusEffectType effect;
+
     // エフェクト
     public CommandSpell(string name = "",　int baseDamage = 0, int maxDamage = 0, int mpCost = 0, string useMessage = "", string successMessage = "", string failMessage = "", Character target = null, SpellType spellType = SpellType.Normal) : base(name, baseDamage, useMessage, successMessage, failMessage, target)
     {
@@ -167,6 +170,7 @@ public class CommandSpell: CommandAttack
         if (type == SpellType.Sleep)
         {
             // エフェクトをスリープにする
+            effect = StatusEffectType.Sleep;
         }
     }
 
@@ -193,7 +197,12 @@ public class CommandSpell: CommandAttack
             damage = Mathf.RoundToInt(damage);
             target.HP -= damage;
             resultMessage = string.Format(successMessage, target.name, Mathf.Abs(damage));
-            // 
+
+            // 異常状態の効果をもってるなら適応
+            if (effect != StatusEffectType.None)
+            {
+                target.condition.AddEffect(effect);
+            }
         }
         else
         {
@@ -204,6 +213,10 @@ public class CommandSpell: CommandAttack
 
     bool CanCast()
     {
+        if (user is Enemy)
+        {
+            return true;
+        }
         return mpCost < user.mp;
     }
 
