@@ -19,6 +19,8 @@ public class Command
     public string failMessage { get; set; }
     public string successMessage { get; set; }
     public string resultMessage { get; set; }
+    public bool shakeEffect;
+
     public Command(string name = "こうげき", string useMessage = "", string successMessage = "", string failMessage = "", Character target = null)
     {
         this.name = name;
@@ -26,6 +28,7 @@ public class Command
         this.failMessage = failMessage;
         this.successMessage = successMessage;
         this.target = target;
+        this.shakeEffect = false;
     }
 
     public void SetUser(Character user)
@@ -63,6 +66,7 @@ public class CommandAttack : Command
 
         if (user is Enemy)
         {
+            shakeEffect = true;
             if (user.strength > targetDefense)
             {
                 min = (user.strength - targetDefense / 2) / 4;
@@ -263,5 +267,49 @@ public class CommandMenu : Command
     public bool HasSubCommands()
     {
         return subs != null && subs.Count > 0;
+    }
+}
+
+
+// アイテムの実装
+public enum UsageType
+{
+    Never,      // 何度でも?使えない？
+    Always,     // バトルとフィールドで使える
+    BattleOnly,
+    FieldOnly,
+}
+
+
+// 呪文と同じように使う
+public class CommandItem : CommandAttack
+{
+
+    public UsageType usage { get; private set; }
+
+    public CommandItem(string name = "", string useMessage = "", string successMessage = "", string failMessage = "", UsageType usage = UsageType.Always, Character target = null, int baseDamage = 0) : base(name, baseDamage, useMessage, successMessage, failMessage, target)
+    {
+        this.usage = usage;
+    }
+
+    public override void Execute()
+    {
+        // 薬草の場合はPlayerを回復する
+        Debug.Log("やくそうの効果");
+        resultMessage = string.Format(successMessage, 20);
+    }
+
+    public bool CanUseInBattle()
+    {
+        if(usage == UsageType.Always || usage == UsageType.BattleOnly)
+        {
+            Debug.Log(user.name);
+            Debug.Log(name);
+            useMessage = string.Format(useMessage, user.name, name);
+            Debug.Log(resultMessage);
+            return true;
+        }
+        resultMessage = failMessage;
+        return false;
     }
 }
