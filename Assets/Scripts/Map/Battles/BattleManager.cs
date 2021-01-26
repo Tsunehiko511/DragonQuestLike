@@ -12,6 +12,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] GameObject commandPanel = default;
     [SerializeField] MessagePanel messagePanel = default;
     // EnemyCore enemy;
+    [SerializeField] BattleCharacter enemyCharacter = default;
 
     PlayerCore playerCore;
     BattlerBase player;
@@ -114,6 +115,9 @@ public class BattleManager : MonoBehaviour
                     windowBattleLog.ClearText();
                     windowBattleLog.AddText(VocabularyHelper.BattleStart(enemyGroup.member.name), breakline: false);
                     windowBattleLog.AddText("コマンド？");
+
+                    enemyCharacter.TakeHit();
+
                     yield return WaitMessage();
                     ChangePhase(BattlePhase.ChooseCommand);
                     break;
@@ -221,14 +225,15 @@ public class BattleManager : MonoBehaviour
         }
     }
     [SerializeField] Transform windowParent;
-    IEnumerator ScreenShakeEffect(float duration=0.1f, bool waitComplete = true)
+    IEnumerator ScreenShakeEffect(float duration = 0.1f, bool waitComplete = true)
     {
         Transform parent = windowParent;
         Vector3 targetPos = parent.localPosition;
-        targetPos.x = Random.Range(8, 10) * (Random.Range(0, 100) > 50 ? -1 : 1);
-        targetPos.y = Random.Range(8, 10) * (Random.Range(0, 100) > 50 ? -1 : 1);
-        parent.DOLocalMove(targetPos, duration).SetLoops(4, LoopType.Yoyo);
-        yield return new WaitForSeconds(waitComplete ? duration : 0f);
+        int loopCount = 4;
+        targetPos.x = Random.Range(2, 4) * (Random.Range(0, 100) > 50 ? -1 : 1);
+        targetPos.y = Random.Range(2, 4) * (Random.Range(0, 100) > 50 ? -1 : 1);
+        parent.DOLocalMove(targetPos*5, duration).SetLoops(loopCount);
+        yield return new WaitForSeconds(waitComplete ? duration * loopCount : 0f);
     }
 
     bool IsBattleOver()
@@ -265,7 +270,19 @@ public class BattleManager : MonoBehaviour
                 windowBattleLog.AddText(command.useMessage); // useMessageか？
                 yield return WaitMessage();
 
-                if (command.shakeEffect && command.success) yield return ScreenShakeEffect();
+                if (command.shakeEffect && command.success)
+                {
+                    if (command.target is Enemy)
+                    {
+                        Debug.Log("Enemy Damage");
+                        enemyCharacter.TakeHit();
+                    }
+                    else
+                    {
+                        yield return ScreenShakeEffect();
+                    }
+                };
+                if (command.blinkEffect && command.success) yield return ScreenBlinkEffect();
                 windowBattleLog.AddText(command.resultMessage);
             }
             yield return WaitMessage();
@@ -339,5 +356,19 @@ public class BattleManager : MonoBehaviour
         {
             EndBattle();
         }
+    }
+
+    IEnumerator ScreenBlinkEffect(float duration = 0.5f, bool waitComplete = true)
+    {
+        Grayscale grayscaleEffect = Camera.main.GetComponent<Grayscale>();
+        float blinkFrequency = 0.04f;
+
+        for (float count = 0; count < duration; count += blinkFrequency)
+        {
+            grayscaleEffect.enabled = !grayscaleEffect.enabled;
+            yield return new WaitForSeconds(blinkFrequency);
+        }
+
+        grayscaleEffect.enabled = false;
     }
 }

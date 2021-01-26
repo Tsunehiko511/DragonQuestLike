@@ -47,7 +47,7 @@ public class Character
 
     public Condition condition = new Condition();
 
-    public Character(string name = "char", int strength = 3, int agility = 10, int hp = 10, int mp = 5, int level = 1)
+    public Character(string name = "char", int strength = 3, int agility = 1, int hp = 10, int mp = 5, int level = 1)
     {
         this.name = name;
         this.strength = strength;
@@ -77,7 +77,7 @@ public class Enemy : Character
     public static int UNIQUE_ID = 0;
     public int id { get; private set; }
 
-    public Enemy(string name = "char", int strength = 3, int agility = 10, int hp = 10, int mp = 5, int level = 1):base(name, strength, agility, hp, mp, level)
+    public Enemy(string name = "char", int strength = 3, int agility = 1, int hp = 10, int mp = 5, int level = 1):base(name, strength, agility, hp, mp, level)
     {
         id = UNIQUE_ID++;
     }

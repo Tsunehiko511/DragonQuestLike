@@ -28,7 +28,7 @@ public class BattleCharacter : MonoBehaviour
 
     IEnumerator Blink()
     {
-        for (int i=0; i<BLINK_FREQUENCY; i++)
+        for (int i=0; i< BLINK_TOTAL; i++)
         {
             yield return new WaitForSeconds(BLINK_FREQUENCY);
             body.enabled = !body.enabled;

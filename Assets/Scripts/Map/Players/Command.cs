@@ -20,6 +20,7 @@ public class Command
     public string successMessage { get; set; }
     public string resultMessage { get; set; }
     public bool shakeEffect;
+    public bool blinkEffect;
 
     public Command(string name = "こうげき", string useMessage = "", string successMessage = "", string failMessage = "", Character target = null)
     {
@@ -29,6 +30,7 @@ public class Command
         this.successMessage = successMessage;
         this.target = target;
         this.shakeEffect = false;
+        this.blinkEffect = false;
     }
 
     public void SetUser(Character user)
@@ -63,10 +65,10 @@ public class CommandAttack : Command
 
         int targetDefense = (int)Mathf.Floor(target.agility / 2); // + 装備
         int min, max, damage = 0;
+        shakeEffect = true;
 
         if (user is Enemy)
         {
-            shakeEffect = true;
             if (user.strength > targetDefense)
             {
                 min = (user.strength - targetDefense / 2) / 4;
@@ -197,6 +199,7 @@ public class CommandSpell: CommandAttack
             {
                 target.condition.AddEffect(effect);
             }
+            this.blinkEffect = true;
         }
         else
         {
