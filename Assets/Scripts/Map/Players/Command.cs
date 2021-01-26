@@ -22,15 +22,15 @@ public class Command
     public bool shakeEffect;
     public bool blinkEffect;
 
-    public Command(string name = "こうげき", string useMessage = "", string successMessage = "", string failMessage = "", Character target = null)
+    public Command(string name = "こうげき", string useMessage = "", string successMessage = "", string failMessage = "", Character target = null, bool shakeEffect = false, bool blinkEffect = false)
     {
         this.name = name;
         this.useMessage = useMessage;
         this.failMessage = failMessage;
         this.successMessage = successMessage;
         this.target = target;
-        this.shakeEffect = false;
-        this.blinkEffect = false;
+        this.shakeEffect = shakeEffect;
+        this.blinkEffect = blinkEffect;
     }
 
     public void SetUser(Character user)
@@ -54,7 +54,7 @@ public class CommandAttack : Command
 {
     public int baseDamage { get; private set; }
 
-    public CommandAttack(string name = "こうげき", int baseDamage = 0, string useMessage = "", string successMessage = "", string failMessage = "", Character target = null) : base(name, useMessage, successMessage, failMessage, target)
+    public CommandAttack(string name = "こうげき", int baseDamage = 0, string useMessage = "", string successMessage = "", string failMessage = "", Character target = null, bool shakeEffect = false, bool blinkEffect = false) : base(name, useMessage, successMessage, failMessage, target, shakeEffect, blinkEffect)
     {
         this.baseDamage = baseDamage;
     }
@@ -65,8 +65,6 @@ public class CommandAttack : Command
 
         int targetDefense = (int)Mathf.Floor(target.agility / 2); // + 装備
         int min, max, damage = 0;
-        shakeEffect = true;
-
         if (user is Enemy)
         {
             if (user.strength > targetDefense)
@@ -166,7 +164,7 @@ public class CommandSpell: CommandAttack
     public StatusEffectType effect;
 
     // エフェクト
-    public CommandSpell(string name = "",　int baseDamage = 0, int maxDamage = 0, int mpCost = 0, string useMessage = "", string successMessage = "", string failMessage = "", Character target = null, SpellType spellType = SpellType.Normal) : base(name, baseDamage, useMessage, successMessage, failMessage, target)
+    public CommandSpell(string name = "",　int baseDamage = 0, int maxDamage = 0, int mpCost = 0, string useMessage = "", string successMessage = "", string failMessage = "", Character target = null, SpellType spellType = SpellType.Normal, bool shakeEffect = false, bool blinkEffect = false) : base(name, baseDamage, useMessage, successMessage, failMessage, target, shakeEffect, blinkEffect)
     {
         this.maxDamage = maxDamage;
         this.mpCost = mpCost;
@@ -199,7 +197,6 @@ public class CommandSpell: CommandAttack
             {
                 target.condition.AddEffect(effect);
             }
-            this.blinkEffect = true;
         }
         else
         {

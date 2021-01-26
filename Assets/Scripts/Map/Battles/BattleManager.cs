@@ -57,13 +57,13 @@ public class BattleManager : MonoBehaviour
         playerGroup.AddCharacter("しまづ", hp: 20, mp: 7, level: 1);
 
         // Playerの持ち物と技を読み込む？その都度読み込む？
-        playerGroup.member.AddCommand(new CommandAttack("こうげき", 5, VocabularyHelper.UseAttack, VocabularyHelper.SuccessPlayerAttack, VocabularyHelper.FailAttack, enemyGroup.member));
+        playerGroup.member.AddCommand(new CommandAttack("こうげき", 5, VocabularyHelper.UseAttack, VocabularyHelper.SuccessPlayerAttack, VocabularyHelper.FailAttack, enemyGroup.member, shakeEffect: true));
         Command command = new CommandMenu("じゅもん");
         playerGroup.member.AddCommand(command);
         // 技の設定
-        (command as CommandMenu).AddSub(new CommandSpell("ホイミ", baseDamage: -10, maxDamage: -17, mpCost: 4, VocabularyHelper.UseSpell, VocabularyHelper.Heal, VocabularyHelper.NotEnoughMP, target: playerGroup.member));
-        (command as CommandMenu).AddSub(new CommandSpell("ギラ", baseDamage: 5, maxDamage: 12, mpCost: 2, VocabularyHelper.UseSpell, VocabularyHelper.SuccessEnemyAttack, VocabularyHelper.FailAttack, target: enemyGroup.member, spellType: SpellType.Hurt));
-        (command as CommandMenu).AddSub(new CommandSpell("ラリホー", baseDamage: 0, maxDamage: 0, mpCost: 2, VocabularyHelper.UseSpell, VocabularyHelper.SuccessSleepSpell, VocabularyHelper.FailSleepSpell, target: enemyGroup.member, spellType: SpellType.Sleep));
+        (command as CommandMenu).AddSub(new CommandSpell("ホイミ", baseDamage: -10, maxDamage: -17, mpCost: 4, VocabularyHelper.UseSpell, VocabularyHelper.Heal, VocabularyHelper.NotEnoughMP, target: playerGroup.member, blinkEffect:true));
+        (command as CommandMenu).AddSub(new CommandSpell("ギラ", baseDamage: 5, maxDamage: 12, mpCost: 2, VocabularyHelper.UseSpell, VocabularyHelper.SuccessEnemyAttack, VocabularyHelper.FailAttack, target: enemyGroup.member, spellType: SpellType.Hurt, shakeEffect:true));
+        (command as CommandMenu).AddSub(new CommandSpell("ラリホー", baseDamage: 0, maxDamage: 0, mpCost: 2, VocabularyHelper.UseSpell, VocabularyHelper.SuccessSleepSpell, VocabularyHelper.FailSleepSpell, target: enemyGroup.member, spellType: SpellType.Sleep, blinkEffect:true));
 
         playerGroup.member.AddCommand(new CommandEscape("にげる", VocabularyHelper.UseEscape, VocabularyHelper.SuccessEscape, VocabularyHelper.FailSleepSpell, enemyGroup.member));
         // アイテムの実装
@@ -77,7 +77,7 @@ public class BattleManager : MonoBehaviour
 
 
 
-        enemyGroup.member.AddCommand(new CommandAttack("こうげき", 5, VocabularyHelper.UseAttack, VocabularyHelper.SuccessEnemyAttack, VocabularyHelper.FailAttack, playerGroup.member));
+        enemyGroup.member.AddCommand(new CommandAttack("こうげき", 5, VocabularyHelper.UseAttack, VocabularyHelper.SuccessEnemyAttack, VocabularyHelper.FailAttack, playerGroup.member, shakeEffect:true));
         // enemyGroup.member.AddCommand(new CommandSpell("ラリホー", 0, 0, 2, "{0}は　ラリホーのじゅもんをとなえた！", "ネタ", "MPがたりない", target: playerGroup.member, spellType: SpellType.Sleep));
 
 
@@ -115,9 +115,6 @@ public class BattleManager : MonoBehaviour
                     windowBattleLog.ClearText();
                     windowBattleLog.AddText(VocabularyHelper.BattleStart(enemyGroup.member.name), breakline: false);
                     windowBattleLog.AddText("コマンド？");
-
-                    enemyCharacter.TakeHit();
-
                     yield return WaitMessage();
                     ChangePhase(BattlePhase.ChooseCommand);
                     break;
@@ -244,7 +241,6 @@ public class BattleManager : MonoBehaviour
     // 実行の前に目を異常状態の回復フェーズを作る？
     IEnumerator Execute()
     {
-        Debug.Log("コマンド？");
         commands.Sort((unitA, unitB) => unitB.user.agility - unitA.user.agility);
 
         // 適当な自分のターンを唱える？
@@ -274,7 +270,6 @@ public class BattleManager : MonoBehaviour
                 {
                     if (command.target is Enemy)
                     {
-                        Debug.Log("Enemy Damage");
                         enemyCharacter.TakeHit();
                     }
                     else
