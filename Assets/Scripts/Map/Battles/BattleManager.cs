@@ -46,6 +46,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] WindowBattleCommand windowBattleMagicCommand = default;
     void Start()
     {
+        SoundManager.instance.PlayBGM(SoundManager.BGM.Battle);
         // Camera.main.
         windowBattleCommand.Initialize();
         windowBattleMagicCommand.Initialize();
@@ -151,6 +152,7 @@ public class BattleManager : MonoBehaviour
                     yield return new WaitUntil(() => InputYES || InputNO);
                     if (InputNO)
                     {
+                        SoundManager.instance.PlaySE(SoundManager.SE.Button);
                         windowBattleMagicCommand.Close();
                         ChangePhase(BattlePhase.ChooseCommand);
                         break;
@@ -268,6 +270,7 @@ public class BattleManager : MonoBehaviour
 
                 if (command.shakeEffect && command.success)
                 {
+                    SoundManager.instance.PlaySE(SoundManager.SE.Attack);
                     if (command.target is Enemy)
                     {
                         enemyCharacter.TakeHit();

@@ -43,6 +43,7 @@ public class WindowBattleLog : WindowBase
         // 動いていないなら
         if (!invikeRunngin)
         {
+            SoundManager.instance.PlaySE(SoundManager.SE.Message);
             Invoke(nameof(AddToDisplay), textSpeed);
         }
     }
@@ -55,6 +56,7 @@ public class WindowBattleLog : WindowBase
 
     void AddToDisplay()
     {
+
         // 1文字たす
         textField.text += textToAdd.Substring(0, 1);
 

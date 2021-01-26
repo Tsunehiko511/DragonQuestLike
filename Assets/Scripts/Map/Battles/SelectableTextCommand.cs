@@ -48,12 +48,14 @@ public class SelectableTextCommand : MonoBehaviour, ISelectHandler, IDeselectHan
     {
         cursor.SetActive(false);
         isFirstSelect = false;
+        SoundManager.instance.PlaySE(SoundManager.SE.Button);
     }
 
     // スペースが押されたとき
     public void OnSubmit(BaseEventData eventData)
     {
         SubmitAction.Invoke(id);
+        SoundManager.instance.PlaySE(SoundManager.SE.Button);
     }
 
     public void OnActive()
