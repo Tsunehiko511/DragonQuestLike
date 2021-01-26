@@ -26580,6 +26580,7 @@ MonoBehaviour:
   windowBattleLog: {fileID: 0}
   windowBattleCommand: {fileID: 0}
   windowBattleMagicCommand: {fileID: 0}
+  windowParent: {fileID: 0}
 --- !u!1 &850662643
 GameObject:
   m_ObjectHideFlags: 0
@@ -34911,6 +34912,7 @@ MonoBehaviour:
   windowBattleLog: {fileID: 1970756487}
   windowBattleCommand: {fileID: 1970756488}
   windowBattleMagicCommand: {fileID: 1970756489}
+  windowParent: {fileID: 1794351303}
 --- !u!4 &1970756486
 Transform:
   m_ObjectHideFlags: 0
