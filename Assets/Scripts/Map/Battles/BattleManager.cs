@@ -4,6 +4,7 @@ using UnityEngine;
 using Players;
 using Enemys;
 using Battles;
+using DG.Tweening;
 
 public class BattleManager : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] GameObject commandPanel = default;
     [SerializeField] MessagePanel messagePanel = default;
     // EnemyCore enemy;
+    [SerializeField] BattleCharacter enemyCharacter = default;
 
     PlayerCore playerCore;
     BattlerBase player;
@@ -44,6 +46,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] WindowBattleCommand windowBattleMagicCommand = default;
     void Start()
     {
+        // Camera.main.
         windowBattleCommand.Initialize();
         windowBattleMagicCommand.Initialize();
         playerGroup = new Group();
@@ -54,17 +57,27 @@ public class BattleManager : MonoBehaviour
         playerGroup.AddCharacter("しまづ", hp: 20, mp: 7, level: 1);
 
         // Playerの持ち物と技を読み込む？その都度読み込む？
-        playerGroup.member.AddCommand(new CommandAttack("こうげき", 5, VocabularyHelper.UseAttack, VocabularyHelper.SuccessPlayerAttack, VocabularyHelper.FailAttack, enemyGroup.member));
+        playerGroup.member.AddCommand(new CommandAttack("こうげき", 5, VocabularyHelper.UseAttack, VocabularyHelper.SuccessPlayerAttack, VocabularyHelper.FailAttack, enemyGroup.member, shakeEffect: true));
         Command command = new CommandMenu("じゅもん");
         playerGroup.member.AddCommand(command);
         // 技の設定
-        (command as CommandMenu).AddSub(new CommandSpell("ホイミ", baseDamage: -10, maxDamage: -17, mpCost: 4, VocabularyHelper.UseSpell, VocabularyHelper.Heal, VocabularyHelper.NotEnoughMP, target: playerGroup.member));
-        (command as CommandMenu).AddSub(new CommandSpell("ギラ", baseDamage: 5, maxDamage: 12, mpCost: 2, VocabularyHelper.UseSpell, VocabularyHelper.SuccessEnemyAttack, VocabularyHelper.FailAttack, target: enemyGroup.member, spellType: SpellType.Hurt));
-        (command as CommandMenu).AddSub(new CommandSpell("ラリホー", baseDamage: 0, maxDamage: 0, mpCost: 2, VocabularyHelper.UseSpell, VocabularyHelper.SuccessSleepSpell, VocabularyHelper.FailSleepSpell, target: enemyGroup.member, spellType: SpellType.Sleep));
+        (command as CommandMenu).AddSub(new CommandSpell("ホイミ", baseDamage: -10, maxDamage: -17, mpCost: 4, VocabularyHelper.UseSpell, VocabularyHelper.Heal, VocabularyHelper.NotEnoughMP, target: playerGroup.member, blinkEffect:true));
+        (command as CommandMenu).AddSub(new CommandSpell("ギラ", baseDamage: 5, maxDamage: 12, mpCost: 2, VocabularyHelper.UseSpell, VocabularyHelper.SuccessEnemyAttack, VocabularyHelper.FailAttack, target: enemyGroup.member, spellType: SpellType.Hurt, shakeEffect:true));
+        (command as CommandMenu).AddSub(new CommandSpell("ラリホー", baseDamage: 0, maxDamage: 0, mpCost: 2, VocabularyHelper.UseSpell, VocabularyHelper.SuccessSleepSpell, VocabularyHelper.FailSleepSpell, target: enemyGroup.member, spellType: SpellType.Sleep, blinkEffect:true));
 
         playerGroup.member.AddCommand(new CommandEscape("にげる", VocabularyHelper.UseEscape, VocabularyHelper.SuccessEscape, VocabularyHelper.FailSleepSpell, enemyGroup.member));
+        // アイテムの実装
+        command = new CommandMenu("どうぐ");
+        playerGroup.member.AddCommand(command);
+        (command as CommandMenu).AddSub(new CommandItem("たいまつ", "{0}は　{1}をつかった！", "HPを　{0}かいふくした！", "いまはつかえない", UsageType.FieldOnly));
+        (command as CommandMenu).AddSub(new CommandItem("やくそう", "{0}は　{1}をつかった！", "HPを　{0}かいふくした！", "いまはつかえない", UsageType.Always));
+        (command as CommandMenu).AddSub(new CommandItem("やくそう", "{0}は　{1}をつかった！", "HPを　{0}かいふくした！", "いまはつかえない", UsageType.Always));
         playerGroup.member.AddCommand(new CommandEscape("どうぐ", VocabularyHelper.UseItem, VocabularyHelper.SuccessUseItem, VocabularyHelper.FailUseItem, enemyGroup.member));
-        enemyGroup.member.AddCommand(new CommandAttack("こうげき", 5, VocabularyHelper.UseAttack, VocabularyHelper.SuccessEnemyAttack, VocabularyHelper.FailAttack, playerGroup.member));
+
+
+
+
+        enemyGroup.member.AddCommand(new CommandAttack("こうげき", 5, VocabularyHelper.UseAttack, VocabularyHelper.SuccessEnemyAttack, VocabularyHelper.FailAttack, playerGroup.member, shakeEffect:true));
         // enemyGroup.member.AddCommand(new CommandSpell("ラリホー", 0, 0, 2, "{0}は　ラリホーのじゅもんをとなえた！", "ネタ", "MPがたりない", target: playerGroup.member, spellType: SpellType.Sleep));
 
 
@@ -133,7 +146,7 @@ public class BattleManager : MonoBehaviour
                 case BattlePhase.ChooseSubCommand:
                     windowBattleMagicCommand.Open();
                     CommandMenu commandMenu = command as CommandMenu;
-                    windowBattleMagicCommand.Spawn(commandMenu.subs);
+                    windowBattleMagicCommand.Spawn(commandMenu.subs); // 場所が違う
 
                     yield return new WaitUntil(() => InputYES || InputNO);
                     if (InputNO)
@@ -143,20 +156,43 @@ public class BattleManager : MonoBehaviour
                         break;
                     }
                     // 何をやったのか?
-                    CommandSpell commandSpell = commandMenu.subs[windowBattleMagicCommand.current] as CommandSpell;
-                    // もしMPがなかったらアラートを出して、選び直し
-                    if (commandSpell.CanExecute())
+                    Command cmd = commandMenu.subs[windowBattleMagicCommand.current];
+                    if (cmd is CommandSpell)
                     {
-                        commands.Add(commandSpell);
-                        windowBattleCommand.Close();
-                        windowBattleMagicCommand.Close();
-                        ChangePhase(BattlePhase.EnemyChoose);
+                        CommandSpell commandSpell = commandMenu.subs[windowBattleMagicCommand.current] as CommandSpell;
+                        // もしMPがなかったらアラートを出して、選び直し
+                        if (commandSpell.CanExecute())
+                        {
+                            commands.Add(commandSpell);
+                            windowBattleCommand.Close();
+                            windowBattleMagicCommand.Close();
+                            ChangePhase(BattlePhase.EnemyChoose);
+                        }
+                        else
+                        {
+                            windowBattleLog.AddText(commandSpell.resultMessage);
+                            yield return WaitMessage();
+                            ChangePhase(BattlePhase.ChooseSubCommand);
+                        }
                     }
-                    else
+                    else if (cmd is CommandItem)
                     {
-                        windowBattleLog.AddText(commandSpell.resultMessage);
-                        yield return WaitMessage();
-                        ChangePhase(BattlePhase.ChooseSubCommand);
+                        CommandItem commandItem = cmd as CommandItem;
+                        if (commandItem.CanUseInBattle())
+                        {
+                            commands.Add(commandItem);
+                            commandMenu.subs.Remove(commandItem);
+                            windowBattleCommand.Close();
+                            windowBattleMagicCommand.Close();
+                            
+                            ChangePhase(BattlePhase.EnemyChoose);
+                        }
+                        else
+                        {
+                            windowBattleLog.AddText(commandItem.resultMessage);
+                            yield return WaitMessage();
+                            ChangePhase(BattlePhase.ChooseSubCommand);
+                        }
                     }
 
 
@@ -185,6 +221,17 @@ public class BattleManager : MonoBehaviour
             yield return null;
         }
     }
+    [SerializeField] Transform windowParent;
+    IEnumerator ScreenShakeEffect(float duration = 0.1f, bool waitComplete = true)
+    {
+        Transform parent = windowParent;
+        Vector3 targetPos = parent.localPosition;
+        int loopCount = 4;
+        targetPos.x = Random.Range(2, 4) * (Random.Range(0, 100) > 50 ? -1 : 1);
+        targetPos.y = Random.Range(2, 4) * (Random.Range(0, 100) > 50 ? -1 : 1);
+        parent.DOLocalMove(targetPos*5, duration).SetLoops(loopCount);
+        yield return new WaitForSeconds(waitComplete ? duration * loopCount : 0f);
+    }
 
     bool IsBattleOver()
     {
@@ -194,7 +241,6 @@ public class BattleManager : MonoBehaviour
     // 実行の前に目を異常状態の回復フェーズを作る？
     IEnumerator Execute()
     {
-        Debug.Log("コマンド？");
         commands.Sort((unitA, unitB) => unitB.user.agility - unitA.user.agility);
 
         // 適当な自分のターンを唱える？
@@ -218,6 +264,20 @@ public class BattleManager : MonoBehaviour
             {
                 command.Execute();
                 windowBattleLog.AddText(command.useMessage); // useMessageか？
+                yield return WaitMessage();
+
+                if (command.shakeEffect && command.success)
+                {
+                    if (command.target is Enemy)
+                    {
+                        enemyCharacter.TakeHit();
+                    }
+                    else
+                    {
+                        yield return ScreenShakeEffect();
+                    }
+                };
+                if (command.blinkEffect && command.success) yield return ScreenBlinkEffect();
                 windowBattleLog.AddText(command.resultMessage);
             }
             yield return WaitMessage();
@@ -291,5 +351,19 @@ public class BattleManager : MonoBehaviour
         {
             EndBattle();
         }
+    }
+
+    IEnumerator ScreenBlinkEffect(float duration = 0.5f, bool waitComplete = true)
+    {
+        Grayscale grayscaleEffect = Camera.main.GetComponent<Grayscale>();
+        float blinkFrequency = 0.04f;
+
+        for (float count = 0; count < duration; count += blinkFrequency)
+        {
+            grayscaleEffect.enabled = !grayscaleEffect.enabled;
+            yield return new WaitForSeconds(blinkFrequency);
+        }
+
+        grayscaleEffect.enabled = false;
     }
 }
