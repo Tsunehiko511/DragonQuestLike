@@ -19,6 +19,14 @@ public class WindowBattleCommand : WindowBase
         selectCommands = base.windowObj.GetComponentsInChildren<SelectableTextCommand>();
         for (int i = 0; i < selectCommands.Length; i++)
         {
+            if (i == 0)
+            {
+                selectCommands[i].isFirstSelect = true;
+            }
+            else
+            {
+                selectCommands[i].isFirstSelect = false;
+            }
             selectCommands[i].id = i;
             selectCommands[i].SubmitAction = OnOptionSelected;
         }
@@ -82,4 +90,5 @@ public class WindowBattleCommand : WindowBase
     {
         EventSystem.current.SetSelectedGameObject(selectCommands[current].gameObject);
     }
+
 }

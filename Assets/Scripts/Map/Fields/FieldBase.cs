@@ -5,6 +5,7 @@ using Players;
 
 namespace Maps
 {
+    /*
     enum Fieldtype
     {
         None,
@@ -13,33 +14,16 @@ namespace Maps
         Mountain,
         Cave,
         Sea,
-    }
+    }*/
+
+    // Fieldに種類がある
+    // Scriptable Objectでなんとかする？
+    // 敵：どの敵に出会うのか？確率は？
+    // 城：どの城に行くのか？
 
     public class FieldBase : MonoBehaviour
     {
-        // [SerializeField] Fieldtype fieldType = default;
-        // モンスターを仕込む？
-        [SerializeField] List<Enemys.MonsterType> encountMonsterList = default;
-        public List<Enemys.MonsterType> EncountMonsterList
-        {
-            get => encountMonsterList;
-            set => encountMonsterList = value;
-        }
 
-        private void OnTriggerEnter2D(Collider2D collision)
-        {
-            if (collision.CompareTag("Player") == false)
-            {
-                return;
-            }
-
-            if (encountMonsterList.Count > 0)
-            {
-                // 敵がいるならテーブルを渡してやる
-                EncountChecker player = collision.GetComponent<EncountChecker>();
-                player.EncountMonsterList = encountMonsterList;
-            }
-        }
     }
 }
 

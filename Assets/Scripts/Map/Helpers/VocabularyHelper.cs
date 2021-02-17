@@ -56,7 +56,7 @@ public static class VocabularyHelper
     }
     public static string Exp(int amount)
     {
-        return string.Format("けいけんち　{0}ポイントかくとく！", amount);
+        return string.Format("けいけんち　{0}ポイントを\nかくとく！", amount);
     }
 
     public const string Command = "コマンド？";

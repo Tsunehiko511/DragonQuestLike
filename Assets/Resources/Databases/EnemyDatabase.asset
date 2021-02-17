@@ -91,3 +91,29 @@ MonoBehaviour:
         speed: 1
         ex: 2
         gold: 10
+  - monsterType: 5
+    sprite: {fileID: 21300000, guid: cd9e0c07be0e94c3098922b6f1e1d8a7, type: 3}
+    battler:
+      isPlayer: 0
+      status:
+        name: "\u30AA\u30AA\u30B5\u30BD\u30EA"
+        level: 1
+        hp: 6
+        mp: 0
+        at: 1
+        speed: 1
+        ex: 2
+        gold: 10
+  - monsterType: 6
+    sprite: {fileID: 21300000, guid: 533f7f216773a4628b4a605e2b2b7fdf, type: 3}
+    battler:
+      isPlayer: 0
+      status:
+        name: "\u30B7\u30DE\u30AE\u30E5\u30FC"
+        level: 1
+        hp: 100
+        mp: 100
+        at: 15
+        speed: 10
+        ex: 1000
+        gold: 10000

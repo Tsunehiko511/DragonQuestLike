@@ -12,6 +12,7 @@ namespace Enemys
         Ghost,
         Wizard,
         Scorpion,
+        ShimaGu,
     }
 
     [Serializable]

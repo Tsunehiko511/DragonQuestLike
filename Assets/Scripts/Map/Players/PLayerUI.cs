@@ -19,4 +19,14 @@ public class PLayerUI : MonoBehaviour
         goldText.text = player.Gold.ToString();
         exText.text = player.Ex.ToString();
     }
+
+    public void UpdateUI(Character player)
+    {
+        levelText.text = player.level.ToString();
+        hpText.text = player.HP.ToString();
+        mpText.text = player.MP.ToString();
+        goldText.text = player.gold.ToString();
+        exText.text = player.exp.ToString();
+    }
+
 }

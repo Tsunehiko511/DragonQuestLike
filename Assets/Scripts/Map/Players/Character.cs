@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 public class Character
 {
@@ -46,7 +44,7 @@ public class Character
 
     public Condition condition = new Condition();
 
-    public Character(string name = "char", int strength = 3, int agility = 1, int hp = 10, int mp = 5, int level = 1)
+    public Character(string name = "char", int strength = 20, int agility = 5, int hp = 10, int mp = 5, int level = 1)
     {
         this.name = name;
         this.strength = strength;
@@ -58,6 +56,11 @@ public class Character
         this.isPlayer = isPlayer;
     }
 
+    public void ResetSetting()
+    {
+        commands.Clear();
+        condition = new Condition();
+    }
 
     public Command AddCommand(Command command)
     {
@@ -65,10 +68,29 @@ public class Character
         command.SetUser(this);
         return command;
     }
-
-
 }
 
+public class Player : Character
+{
+    public Player(string name = "char", int strength = 20, int agility = 5, int hp = 10, int mp = 5, int level = 1) : base(name, strength, agility, hp, mp, level)
+    {
+    }
+
+    public void AddGold(int gold)
+    {
+        this.gold += gold;
+    }
+    public void AddExp(int exp)
+    {
+        this.exp += exp;
+    }
+    public void AddGoldAndExp(int gold, int exp)
+    {
+        AddGold(gold);
+        AddExp(exp);
+    }
+
+}
 
 public class Enemy : Character
 {
@@ -79,6 +101,8 @@ public class Enemy : Character
     public Enemy(string name = "char", int strength = 3, int agility = 1, int hp = 10, int mp = 5, int level = 1):base(name, strength, agility, hp, mp, level)
     {
         id = UNIQUE_ID++;
+        exp = 1;
+        gold = 3;
     }
 
     public float GroupFactor()

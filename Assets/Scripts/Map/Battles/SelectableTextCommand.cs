@@ -31,6 +31,7 @@ public class SelectableTextCommand : MonoBehaviour, ISelectHandler, IDeselectHan
     {
         yield return new WaitForSeconds(0.2f);
         // 選択状態にする
+        Debug.Log("選択!!!");
         GetComponent<Selectable>().Select();
 
     }
