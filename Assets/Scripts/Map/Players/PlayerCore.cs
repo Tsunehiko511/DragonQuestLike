@@ -29,12 +29,17 @@ namespace Players
 
         private void Start()
         {
-            UpdateUI();
+            // UpdateUI();
         }
 
         public void UpdateUI()
         {
             playerUI.UpdateUI(battler);
+        }
+
+        public void UpdateUI(Character player)
+        {
+            playerUI.UpdateUI(player);
         }
 
 

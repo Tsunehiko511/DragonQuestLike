@@ -1,57 +1,72 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UniRx;
+using UnityEngine.Events;
 
+// 移動が終わったら登録されていることを行う
 namespace Players
 {
     // ランダムエンカウント
     // もし、モンスターがいる場所を歩いていると、遭遇する
-
     public class PlayerMove : MonoBehaviour
     {
+        [SerializeField] float moveSpeed = 10f;
+        [SerializeField] Transform movePoint = default;
+
+        [SerializeField] LayerMask whatStopsMovement = default;
+
         public bool isMoving = default;
         public bool canMove = default;
 
-        [SerializeField] float speed = default;
+        public UnityAction EventAction = default;
 
         void Start()
         {
+            movePoint.parent = null;
             canMove = true;
         }
+
         void Update()
         {
-            isMoving = false;
-
-            if (canMove == false)
+            transform.position = Vector2.MoveTowards(transform.position, movePoint.position, moveSpeed * Time.deltaTime);
+            if (Vector2.Distance(transform.position, movePoint.position) < float.Epsilon)
             {
-                return;
-            }
-
-
-            if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
-            {
-                Move(Vector2.right);
-            }
-            if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
-            {
-                Move(Vector2.left);
-            }
-            if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
-            {
-                Move(Vector2.up);
-            }
-            if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S))
-            {
-                Move(Vector2.down);
+                if (canMove && Mathf.Abs(Input.GetAxisRaw("Horizontal")) == 1f)
+                {
+                    Vector3 inputH = new Vector3(Input.GetAxisRaw("Horizontal"), 0, 0);
+                    MoveTo(inputH);
+                }
+                else if (canMove && Mathf.Abs(Input.GetAxisRaw("Vertical")) == 1f)
+                {
+                    Vector3 inputV = new Vector3(0, Input.GetAxisRaw("Vertical"), 0);
+                    MoveTo(inputV);
+                }
+                else
+                {
+                    isMoving = false;
+                    EventAction?.Invoke();
+                }
             }
         }
 
-        void Move(Vector2 direction)
+        void MoveTo(Vector3 position)
         {
-            isMoving = true;
-            transform.position += (Vector3)direction * Time.deltaTime * speed;
+            if (!Physics2D.OverlapCircle(movePoint.position + position * 0.5f, 0.2f, whatStopsMovement))
+            {
+                isMoving = true;
+                movePoint.Translate(position);
+            }
+        }
+
+        public void SetEncountAction(UnityEvent unityEvent)
+        {
+            EventAction = unityEvent.Invoke;
+            canMove = false;
+        }
+        public void CancelEncountAction()
+        {
+            EventAction = null;
+            canMove = true;
         }
     }
 }
-

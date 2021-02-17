@@ -4,13 +4,6 @@ using UnityEngine;
 
 public class Command
 {
-    /*
-    public enum Type
-    {
-        Attack,
-        Escape,
-    }*/
-
     public Character target { get; private set; }
     public string name { get; private set; }
     public bool success { get; set; }
@@ -294,8 +287,6 @@ public class CommandItem : CommandAttack
 
     public override void Execute()
     {
-        // 薬草の場合はPlayerを回復する
-        Debug.Log("やくそうの効果");
         resultMessage = string.Format(successMessage, 20);
     }
 
@@ -303,10 +294,7 @@ public class CommandItem : CommandAttack
     {
         if(usage == UsageType.Always || usage == UsageType.BattleOnly)
         {
-            Debug.Log(user.name);
-            Debug.Log(name);
             useMessage = string.Format(useMessage, user.name, name);
-            Debug.Log(resultMessage);
             return true;
         }
         resultMessage = failMessage;

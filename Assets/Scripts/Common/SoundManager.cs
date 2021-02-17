@@ -5,9 +5,9 @@ using UnityEngine;
 public class SoundManager : MonoBehaviour
 {
     [SerializeField] AudioSource seSpeaker = default;
-    [SerializeField] AudioSource bgmSpeaker = default;
-    [SerializeField] AudioClip[] seClips = default;
-    [SerializeField] AudioClip[] bgmClips = default;
+    // [SerializeField] AudioSource bgmSpeaker = default;
+    // [SerializeField] AudioClip[] seClips = default;
+    // [SerializeField] AudioClip[] bgmClips = default;
 
 
     public static SoundManager instance;
@@ -41,8 +41,9 @@ public class SoundManager : MonoBehaviour
 
     public void PlaySE(SE se)
     {
-        int id = (int)se;
-        seSpeaker.PlayOneShot(seClips[id]);
+        return;
+        //int id = (int)se;
+        //seSpeaker.PlayOneShot(seClips[id]);
     }
 
     public bool IsPlayingMessage()
@@ -52,16 +53,17 @@ public class SoundManager : MonoBehaviour
 
     public void PlayBGM(BGM bgm)
     {
-        int id = (int)bgm;
-        if (bgm == BGM.Battle)
-        {
-            bgmSpeaker.volume = 0.2f;
-        }
-        else
-        {
-            bgmSpeaker.volume = 1f;
-        }
-        bgmSpeaker.clip = bgmClips[id];
-        bgmSpeaker.Play();
+        return;
+        //int id = (int)bgm;
+        //if (bgm == BGM.Battle)
+        //{
+        //    bgmSpeaker.volume = 0.2f;
+        //}
+        //else
+        //{
+        //    bgmSpeaker.volume = 1f;
+        //}
+        //bgmSpeaker.clip = bgmClips[id];
+        //bgmSpeaker.Play();
     }
 }

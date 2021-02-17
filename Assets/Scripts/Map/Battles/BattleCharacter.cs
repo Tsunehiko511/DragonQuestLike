@@ -5,9 +5,9 @@ using UnityEngine.UI;
 
 public class BattleCharacter : MonoBehaviour
 {
-    [SerializeField] Image body;
+    [SerializeField] Image body = default;
     // TODO:SE;
-    [SerializeField] bool blink;
+    [SerializeField] bool blink = default;
     const int BLINK_TOTAL = 8;
     const float BLINK_FREQUENCY = 0.05f;
 
@@ -24,6 +24,12 @@ public class BattleCharacter : MonoBehaviour
     public void Die()
     {
         body.enabled = false;
+    }
+
+    public void SetImage(Sprite sprite)
+    {
+        body.sprite = sprite;
+        body.rectTransform.sizeDelta = Vector2.one * sprite.bounds.size.x * 200;
     }
 
     IEnumerator Blink()

@@ -16,7 +16,6 @@ public class WindowBattleLog : WindowBase
     public override void Open()
     {
         base.Open();
-        // 表示
         textSpeed = 0.05f;
         scrollSpeed = 0.1f;
     }
@@ -153,4 +152,10 @@ public class WindowBase : MonoBehaviour
     {
         windowObj.SetActive(false);
     }
+
+    public bool IsClose
+    {
+        get => !windowObj.activeSelf;
+    }
+
 }
