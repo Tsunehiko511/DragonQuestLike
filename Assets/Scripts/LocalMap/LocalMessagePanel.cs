@@ -1,21 +1,41 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class LocalMessagePanel : MonoBehaviour
 {
-    // public const 
+    [SerializeField] GameObject panel = default;
+    [SerializeField] Text messageText = default;
+    [SerializeField] UnityEvent OnCompleted = default;
+    
+
+    bool isTalking;
+
 
     public void ShowMessage(string message)
     {
+        if (isTalking)
+        {
+            return;
+        }
+        StartCoroutine(ShowText(message));
+    }
+
+    IEnumerator ShowText(string message)
+    {
+        isTalking = true;
+        messageText.text = "";
+        panel.SetActive(true);
         foreach (char word in message)
         {
-            if (word == MessageParam.selectMark)
-            {
-                Debug.Log("選択肢を出す");
-            }
+            yield return new WaitForSeconds(0.05f);
+            messageText.text += word;
         }
-        // テーブルがあってそれを流す？
-        Debug.Log(message);
+        isTalking = false;
+        yield return new WaitUntil(()=> Input.GetKeyDown(KeyCode.Space));
+        panel.SetActive(false);
+        OnCompleted?.Invoke();
     }
 }

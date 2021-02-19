@@ -28,6 +28,7 @@ namespace Players
 
         void Update()
         {
+            return;
             transform.position = Vector2.MoveTowards(transform.position, movePoint.position, moveSpeed * Time.deltaTime);
             if (Vector2.Distance(transform.position, movePoint.position) < float.Epsilon)
             {
@@ -48,6 +49,24 @@ namespace Players
                 }
             }
         }
+
+        public void MoveToDir(Vector3 position)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, movePoint.position, moveSpeed * Time.deltaTime);
+            if (Vector2.Distance(transform.position, movePoint.position) < float.Epsilon)
+            {
+                if (position == default)
+                {
+                    isMoving = false;
+                    EventAction?.Invoke();
+                }
+                else
+                {
+                    MoveTo(position);
+                }
+            }
+        }
+
 
         void MoveTo(Vector3 position)
         {

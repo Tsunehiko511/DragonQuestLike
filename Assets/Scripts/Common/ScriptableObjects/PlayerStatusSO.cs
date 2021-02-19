@@ -6,12 +6,12 @@ using UnityEngine;
 [CreateAssetMenu]
 public class PlayerStatusSO : ScriptableObject, ISerializationCallbackReceiver
 {
-    [SerializeField] new string name;
-    [SerializeField] int maxHp;
-    [SerializeField] int hp;
-    [SerializeField] int level;
-    [SerializeField] int maxGold;
-    [SerializeField] int gold;
+    [SerializeField] new string name = default;
+    [SerializeField] int maxHp = default;
+    [SerializeField] int hp = default;
+    [SerializeField] int level = default;
+    [SerializeField] int maxGold = default;
+    [SerializeField] int gold = default;
 
     [NonSerialized] int runtimeHP;
     [NonSerialized] int runtimeGold;

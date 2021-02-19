@@ -1,27 +1,78 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class HeroCore : MonoBehaviour
 {
     [SerializeField] PlayerStatusSO playerStatusSO;
-    [SerializeField] UnityEvent OnTalk = new UnityEvent();
+
+    public UnityAction<Vector3> OnSpace = default;
     [SerializeField] UnityEvent OnUseGold = new UnityEvent();
     [SerializeField] UnityEvent OnGetGold = new UnityEvent();
     [SerializeField] UnityEvent OnHeal = new UnityEvent();
 
-    // 街ですること
-
-    private void Update()
+    [System.Serializable]public class InputEvent : UnityEvent<Vector3> { };
+    [SerializeField] InputEvent OnInputDirection = new InputEvent();
+    bool canInput;
+    public bool CanInput
     {
+        get => canInput;
+        set => canInput = value;
+    }
+
+    Vector3 lastDirection = default;
+    // 最後の入力
+    Vector3 InputDirection
+    {
+        get
+        {
+            if (CurrentInputDirection == default)
+            {
+                return lastDirection;
+            }
+            return CurrentInputDirection;
+        }
+    }
+
+    // 現在の入力
+    Vector3 CurrentInputDirection
+    {
+        get
+        {
+            if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) == 1f)
+            {
+                return new Vector3(Input.GetAxisRaw("Horizontal"), 0, 0);
+            }
+            else if (Mathf.Abs(Input.GetAxisRaw("Vertical")) == 1f)
+            {
+                return new Vector3(0, Input.GetAxisRaw("Vertical"), 0);
+            }
+            return default;
+        }
+    }
+
+    private void Start()
+    {
+        canInput = true;
+
+    }
+
+    void Update()
+    {
+        if (!canInput)
+        {
+            return;
+        }
+
+        lastDirection = InputDirection;
+        OnInputDirection?.Invoke(CurrentInputDirection);
         if (Input.GetKeyDown(KeyCode.H))
         {
             Heal(10);
         }
-        if (Input.GetKeyDown(KeyCode.T))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            TalkTo();
+            OnSpace?.Invoke(lastDirection);
         }
         if (Input.GetKeyDown(KeyCode.U))
         {
@@ -31,16 +82,8 @@ public class HeroCore : MonoBehaviour
         {
             GetGold(50);
         }
-
     }
 
-
-    // 人に話しかける:移動不可
-    public void TalkTo()
-    {
-        GameObject.Find("NPC").GetComponent<TownNPC>().Talked();
-        OnTalk?.Invoke();
-    }
 
     // ものを買う:Gold減少
     public void UseGold(int amount)
@@ -60,5 +103,10 @@ public class HeroCore : MonoBehaviour
     {
         playerStatusSO.HP += amount;
         OnHeal?.Invoke();
+    }
+
+    public void CanInputMethod()
+    {
+        canInput = true;
     }
 }
