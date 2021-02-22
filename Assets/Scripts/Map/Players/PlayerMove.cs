@@ -1,14 +1,14 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
+using MoonSharp.Interpreter;
 using UnityEngine;
 using UnityEngine.Events;
 
-// 移動が終わったら登録されていることを行う
 namespace Players
 {
     // ランダムエンカウント
     // もし、モンスターがいる場所を歩いていると、遭遇する
-    public class PlayerMove : MonoBehaviour
+    [MoonSharpUserData]
+    public class PlayerMove : EventMove
     {
         [SerializeField] float moveSpeed = 10f;
         [SerializeField] Transform movePoint = default;
@@ -20,7 +20,7 @@ namespace Players
 
         public UnityAction EventAction = default;
 
-        void Start()
+        void Awake()
         {
             movePoint.parent = null;
             canMove = true;
@@ -52,6 +52,10 @@ namespace Players
 
         public void MoveToDir(Vector3 position)
         {
+            if (!canMove)
+            {
+                return;
+            }
             transform.position = Vector2.MoveTowards(transform.position, movePoint.position, moveSpeed * Time.deltaTime);
             if (Vector2.Distance(transform.position, movePoint.position) < float.Epsilon)
             {
@@ -86,6 +90,14 @@ namespace Players
         {
             EventAction = null;
             canMove = true;
+        }
+        public void SetCanInputFlag(bool value)
+        {
+            canMove = value;
+            if (canMove)
+            {
+                movePoint.position = transform.position;
+            }
         }
     }
 }

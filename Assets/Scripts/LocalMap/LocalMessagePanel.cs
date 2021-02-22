@@ -1,10 +1,13 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using MoonSharp.Interpreter;
 
-public class LocalMessagePanel : MonoBehaviour
+// ランダムエンカウント
+// もし、モンスターがいる場所を歩いていると、遭遇する
+[MoonSharpUserData]
+public class LocalMessagePanel : LuaInterpreterHandlerBase
 {
     [SerializeField] GameObject panel = default;
     [SerializeField] Text messageText = default;
@@ -14,17 +17,25 @@ public class LocalMessagePanel : MonoBehaviour
     bool isTalking;
 
 
-    public void ShowMessage(string message)
+    public void ShowMessage(string message, bool close = false)
     {
         if (isTalking)
         {
             return;
         }
-        StartCoroutine(ShowText(message));
+        StartCoroutine(ShowText(message, close));
     }
 
-    IEnumerator ShowText(string message)
+    public void Close()
     {
+        flag = false;
+        panel.SetActive(false);
+        flag = true;
+    }
+
+    IEnumerator ShowText(string message, bool close = false)
+    {
+        flag = false;
         isTalking = true;
         messageText.text = "";
         panel.SetActive(true);
@@ -35,7 +46,8 @@ public class LocalMessagePanel : MonoBehaviour
         }
         isTalking = false;
         yield return new WaitUntil(()=> Input.GetKeyDown(KeyCode.Space));
-        panel.SetActive(false);
+        panel.SetActive(close);
         OnCompleted?.Invoke();
+        flag = true;
     }
 }

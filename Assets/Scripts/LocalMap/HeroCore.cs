@@ -64,8 +64,12 @@ public class HeroCore : MonoBehaviour
             return;
         }
 
-        lastDirection = InputDirection;
-        OnInputDirection?.Invoke(CurrentInputDirection);
+        if (InputDirection != default)
+        {
+            lastDirection = InputDirection;
+            Debug.Log("CurrentInputDirection:" + CurrentInputDirection);
+            OnInputDirection?.Invoke(CurrentInputDirection);
+        }
         if (Input.GetKeyDown(KeyCode.H))
         {
             Heal(10);

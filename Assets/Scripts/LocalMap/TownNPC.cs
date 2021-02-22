@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class TownNPC : MonoBehaviour
+public class TownNPC : EventMove
 {
     [SerializeField] TalkTableSO talkTableSO = default;
     [System.Serializable]public class TalkEvent : UnityEvent<string> { };
